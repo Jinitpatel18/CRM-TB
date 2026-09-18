@@ -1,0 +1,85 @@
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import Card from '../components/Card';
+import Button from '../components/Button';
+import Input, { Textarea, Select } from '../components/Input';
+import { useCreateTemplate } from '../hooks/useTemplates';
+
+const DEMO_VARS = ['CompanyName', 'ContactName', 'ContactRole', 'ContactEmail'];
+
+export default function Templates() {
+    const create = useCreateTemplate();
+    const [form, setForm] = useState({
+        name: '', type: 'Email', subject: '', body:
+            'Hi {{ContactName}},\n\nI wanted to reach out about {{CompanyName}}…',
+        applicable_roles: '',
+    });
+
+    const insertVar = (v) => setForm({ ...form, body: `${form.body}{{${v}}}` });
+
+    const submit = async (e) => {
+        e.preventDefault();
+        try {
+            await create.mutateAsync({
+                ...form,
+                applicable_roles: form.applicable_roles
+                    ? form.applicable_roles.split(',').map((s) => s.trim()).filter(Boolean)
+                    : undefined,
+            });
+            toast.success('Template created');
+            setForm({ ...form, name: '', subject: '', body: '' });
+        } catch (err) { toast.error(err.message); }
+    };
+
+    return (
+        <div className="space-y-4">
+            <h1 className="text-2xl font-semibold">Create Template</h1>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card title="Template" className="lg:col-span-2">
+                    <form onSubmit={submit} className="space-y-4">
+                        <Input label="Name *" required value={form.name}
+                            onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                        <Select label="Type" value={form.type}
+                            onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                            <option>Email</option><option>WhatsApp</option><option>SMS</option>
+                        </Select>
+                        {form.type === 'Email' && (
+                            <Input label="Subject" value={form.subject}
+                                onChange={(e) => setForm({ ...form, subject: e.target.value })} />
+                        )}
+                        <Textarea label="Body *" required value={form.body}
+                            onChange={(e) => setForm({ ...form, body: e.target.value })} />
+                        <Input label="Applicable roles (comma separated)"
+                            placeholder="CEO, CTO, Manager"
+                            value={form.applicable_roles}
+                            onChange={(e) => setForm({ ...form, applicable_roles: e.target.value })} />
+                        <div className="flex justify-end">
+                            <Button type="submit" disabled={create.isPending}>
+                                {create.isPending ? 'Saving…' : 'Save Template'}
+                            </Button>
+                        </div>
+                    </form>
+                </Card>
+
+                <Card title="Variables">
+                    <p className="text-xs text-slate-500 mb-2">Click to insert into body.</p>
+                    <div className="flex flex-wrap gap-2">
+                        {DEMO_VARS.map((v) => (
+                            <button key={v} type="button" onClick={() => insertVar(v)}
+                                className="text-xs px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded font-mono">
+                                {`{{${v}}}`}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="mt-4 text-xs text-slate-500">
+                        <p className="font-semibold mb-1">Preview:</p>
+                        <pre className="whitespace-pre-wrap bg-slate-50 p-2 rounded text-[11px]">
+                            {form.body}
+                        </pre>
+                    </div>
+                </Card>
+            </div>
+        </div>
+    );
+}

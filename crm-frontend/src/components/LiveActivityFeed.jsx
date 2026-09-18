@@ -1,0 +1,102 @@
+import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '../lib/supabase';
+import { api } from '../lib/api';
+import Badge from './Badge';
+
+export default function LiveActivityFeed({ companyId, limit = 10 }) {
+    const [liveEvents, setLiveEvents] = useState([]);
+
+    // Initial load via API
+    const { data: initial = [], isLoading } = useQuery({
+        queryKey: ['recent-activities', companyId, limit],
+        queryFn: () =>
+            companyId
+                ? api.companyActivities(companyId).then((a) => a.slice(0, limit))
+                : api.recentActivities(limit),
+        refetchInterval: 30000,
+    });
+
+    // Realtime subscription
+    useEffect(() => {
+        const channel = supabase
+            .channel('activities-live')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'activities',
+                    ...(companyId ? { filter: `company_id=eq.${companyId}` } : {}),
+                },
+                (payload) => {
+                    setLiveEvents((prev) =>
+                        [{ ...payload, _id: `${Date.now()}-${Math.random()}` }, ...prev].slice(0, limit)
+                    );
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [companyId, limit]);
+
+    // Combine live + initial, dedupe by id
+    const combined = [
+        ...liveEvents.map((e) => ({ ...(e.new || {}), _live: true, _event: e.eventType })),
+        ...initial.filter((i) => !liveEvents.some((e) => (e.new || e.old)?.id === i.id)),
+    ].slice(0, limit);
+
+    if (isLoading) {
+        return <p className="text-sm text-slate-400">Loading activities…</p>;
+    }
+
+    if (combined.length === 0) {
+        return (
+            <p className="text-sm text-slate-400">
+                No activities yet. Send an email to see it here.
+            </p>
+        );
+    }
+
+    return (
+        <div className="space-y-2">
+            {combined.map((row, idx) => {
+                const isNew = row._event === 'INSERT' || row._live;
+                const isUpdate = row._event === 'UPDATE';
+                return (
+                    <div
+                        key={row._id || row.id || idx}
+                        className={`flex items-center justify-between text-sm border-b border-slate-100 pb-2 ${isNew ? 'bg-green-50/40 -mx-2 px-2 rounded' : ''
+                            }`}
+                    >
+                        <div className="truncate flex-1">
+                            <span
+                                className={`font-medium mr-2 ${isNew ? 'text-green-700' : isUpdate ? 'text-blue-700' : 'text-slate-600'
+                                    }`}
+                            >
+                                {isNew ? '●' : isUpdate ? '↻' : '◦'}
+                            </span>
+                            <span className="text-slate-500">
+                                {row.activity_type} #{row.id}
+                                {row.subject ? ` — ${row.subject}` : ''}
+                            </span>
+                            {row.response_received && (
+                                <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
+                                    💬 Reply
+                                </span>
+                            )}
+                            {row.sent_by_email && (
+                                <span className="ml-2 text-xs text-slate-400">
+                                    by {row.sent_by_name || row.sent_by_email}
+                                </span>
+                            )}
+                        </div>
+                        {row.status && <Badge>{row.status}</Badge>}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
