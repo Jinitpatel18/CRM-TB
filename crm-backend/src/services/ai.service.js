@@ -1,28 +1,14 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { env } from '../config/env.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { logger } from '../utils/logger.js';
 
 const genAI = env.gemini?.apiKey
-    ? new GoogleGenerativeAI(env.gemini.apiKey)
+    ? new GoogleGenAI({ apiKey: env.gemini.apiKey })
     : null;
 
 const MODEL = 'gemini-1.5-flash';
 
-const getModel = () => {
-    if (!genAI) {
-        throw new AppError(
-            'AI not configured. Add GEMINI_API_KEY to .env',
-            400,
-            'AI_NOT_CONFIGURED'
-        );
-    }
-    return genAI.getGenerativeModel({ model: MODEL });
-};
-
-/**
- * Extract JSON from AI response (handles markdown fences, extra text)
- */
 const parseJSON = (text, fallback = null) => {
     let cleaned = String(text || '')
         .replace(/```json\s*/gi, '')
@@ -40,11 +26,18 @@ const parseJSON = (text, fallback = null) => {
     }
 };
 
-/**
- * FEATURE 1: Generate email template from prompt
- */
+const ensureConfigured = () => {
+    if (!genAI) {
+        throw new AppError(
+            'AI not configured. Add GEMINI_API_KEY to .env',
+            400,
+            'AI_NOT_CONFIGURED'
+        );
+    }
+};
+
 export const generateTemplate = async ({ prompt, type = 'Email', tone = 'professional' }) => {
-    const model = getModel();
+    ensureConfigured();
 
     const systemPrompt = `You are an expert B2B sales copywriter. Generate a ${type} template based on the user's request.
 
@@ -66,13 +59,14 @@ Return this exact JSON schema:
 User request: "${prompt}"`;
 
     try {
-        const result = await model.generateContent(systemPrompt);
-        const response = result.response.text();
+        const result = await genAI.models.generateContent({
+            model: MODEL,
+            contents: systemPrompt,
+        });
+        const response = result.text;
 
         const parsed = parseJSON(response);
-        if (!parsed || !parsed.body) {
-            throw new Error('Invalid AI response');
-        }
+        if (!parsed || !parsed.body) throw new Error('Invalid AI response');
 
         return {
             name: parsed.name || 'AI Generated Template',
@@ -86,11 +80,8 @@ User request: "${prompt}"`;
     }
 };
 
-/**
- * FEATURE 2: Improve existing email draft
- */
 export const improveEmail = async ({ subject, body, instruction = 'Make it more professional and concise' }) => {
-    const model = getModel();
+    ensureConfigured();
 
     const systemPrompt = `You are an expert B2B sales editor. Improve the email below based on the instruction.
 
@@ -112,13 +103,14 @@ Original body:
 ${body}`;
 
     try {
-        const result = await model.generateContent(systemPrompt);
-        const response = result.response.text();
+        const result = await genAI.models.generateContent({
+            model: MODEL,
+            contents: systemPrompt,
+        });
+        const response = result.text;
 
         const parsed = parseJSON(response);
-        if (!parsed || !parsed.body) {
-            throw new Error('Invalid AI response');
-        }
+        if (!parsed || !parsed.body) throw new Error('Invalid AI response');
 
         return {
             subject: parsed.subject || subject,
@@ -131,13 +123,9 @@ ${body}`;
     }
 };
 
-/**
- * FEATURE 3: Analyze company activities + suggest next action
- */
 export const analyzeCompany = async ({ company, contacts, activities }) => {
-    const model = getModel();
+    ensureConfigured();
 
-    // Build a compact activity summary (last 20)
     const activitySummary = activities
         .slice(0, 20)
         .map((a) => {
@@ -183,13 +171,14 @@ Return ONLY valid JSON (no markdown) with this schema:
 }`;
 
     try {
-        const result = await model.generateContent(systemPrompt);
-        const response = result.response.text();
+        const result = await genAI.models.generateContent({
+            model: MODEL,
+            contents: systemPrompt,
+        });
+        const response = result.text;
 
         const parsed = parseJSON(response);
-        if (!parsed || !parsed.summary) {
-            throw new Error('Invalid AI response');
-        }
+        if (!parsed || !parsed.summary) throw new Error('Invalid AI response');
 
         return parsed;
     } catch (err) {
