@@ -7,7 +7,7 @@ const genAI = env.gemini?.apiKey
     ? new GoogleGenAI({ apiKey: env.gemini.apiKey })
     : null;
 
-const MODEL = 'gemini-1.5-flash';
+const MODEL = 'gemini-flash-latest';
 
 const parseJSON = (text, fallback = null) => {
     let cleaned = String(text || '')
