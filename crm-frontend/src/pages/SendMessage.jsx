@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Sparkles, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Input, { Textarea, Select } from '../components/Input';
 import FileUploader from '../components/FileUploader';
 import { useSendMessage } from '../hooks/useActivities';
+import { useImproveEmail } from '../hooks/useAI';
 import { api } from '../lib/api';
 
 export default function SendMessage() {
@@ -26,6 +28,7 @@ export default function SendMessage() {
     });
 
     const send = useSendMessage();
+    const improve = useImproveEmail();
 
     // Load contacts when company changes
     useEffect(() => {
@@ -59,6 +62,27 @@ export default function SendMessage() {
             setAttachments([]);
         } catch (err) {
             toast.error(err.message);
+        }
+    };
+
+    const handleImprove = async () => {
+        if (form.body.trim().length < 5) {
+            return toast.error('Write some content in Body first');
+        }
+        try {
+            const result = await improve.mutateAsync({
+                subject: form.subject,
+                body: form.body,
+                instruction: 'Make it more professional and concise',
+            });
+            setForm({
+                ...form,
+                subject: result.subject || form.subject,
+                body: result.body,
+            });
+            toast.success('✨ Email improved!');
+        } catch (err) {
+            // Error handled by hook
         }
     };
 
@@ -115,13 +139,38 @@ export default function SendMessage() {
                         />
                     )}
 
-                    <Textarea
-                        label="Body"
-                        value={form.body}
-                        onChange={(e) => setForm({ ...form, body: e.target.value })}
-                    />
+                    {/* Body with AI Improve button */}
+                    <div>
+                        <div className="flex items-center justify-between mb-1">
+                            <span className="block text-sm font-medium text-slate-700">Body</span>
+                            <button
+                                type="button"
+                                onClick={handleImprove}
+                                disabled={improve.isPending}
+                                className="text-xs inline-flex items-center gap-1 text-brand-600 hover:text-brand-700 font-medium disabled:opacity-50 transition"
+                            >
+                                {improve.isPending ? (
+                                    <>
+                                        <Loader2 size={12} className="animate-spin" /> Improving…
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles size={12} /> Improve with AI
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                        <textarea
+                            rows={8}
+                            value={form.body}
+                            onChange={(e) => setForm({ ...form, body: e.target.value })}
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm
+                focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                            placeholder="Write your message... or use AI to improve it ✨"
+                        />
+                    </div>
 
-                    {/* ⬇️ File Uploader */}
+                    {/* File Uploader */}
                     <FileUploader files={attachments} onChange={setAttachments} />
 
                     <Input

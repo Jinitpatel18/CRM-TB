@@ -11,6 +11,8 @@ import { createTemplateSchema } from '../validators/template.validator.js';
 import { sendMessageSchema, bulkSendSchema } from '../validators/activity.validator.js';
 import { scheduleMeetingSchema, availabilityQuerySchema } from '../validators/meeting.validator.js';
 import { importConfirmSchema } from '../validators/import.validator.js';
+import * as aiCtrl from '../controllers/ai.controller.js';
+import { generateTemplateSchema, improveEmailSchema } from '../validators/ai.validator.js';
 
 // controllers
 import * as companyCtrl from '../controllers/company.controller.js';
@@ -63,6 +65,26 @@ router.patch('/users/:id/status', requireRole('admin'), audit('update', 'user_st
 // ---- Audit Logs (admin only) ----
 router.get('/audit-logs', requireRole('admin'), auditCtrl.list);
 router.get('/audit-logs/stats', requireRole('admin'), auditCtrl.stats);
+
+// ---- AI Assistant ----
+router.get('/ai/status', aiCtrl.status);
+router.post(
+    '/ai/generate-template',
+    requireRole('admin', 'sales'),
+    validate(generateTemplateSchema),
+    aiCtrl.generateTemplate
+);
+router.post(
+    '/ai/improve-email',
+    requireRole('admin', 'sales'),
+    validate(improveEmailSchema),
+    aiCtrl.improveEmail
+);
+router.post(
+    '/ai/analyze-company/:id',
+    requireRole('admin', 'sales'),
+    aiCtrl.analyzeCompany
+);
 
 // ---- Companies ----
 router.get('/companies', companyCtrl.list);

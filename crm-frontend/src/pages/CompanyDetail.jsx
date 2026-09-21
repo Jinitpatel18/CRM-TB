@@ -11,6 +11,7 @@ import Table from '../components/Table';
 import Badge from '../components/Badge';
 import StatusDropdown from '../components/StatusDropdown';
 import ImportContactsModal from '../components/ImportContactsModal';
+import AIInsightsPanel from '../components/AIInsightsPanel';
 import { useCompany, useUpdateCompanyStatus } from '../hooks/useCompanies';
 import { useCreateContact, useUpdateContact } from '../hooks/useContacts';
 import { useCompanyActivities } from '../hooks/useActivities';
@@ -215,6 +216,11 @@ export default function CompanyDetail() {
                 />
             </Card>
 
+            {/* 🆕 AI Insights */}
+            <Card title="AI Customer Insights">
+                <AIInsightsPanel companyId={Number(id)} />
+            </Card>
+
             {/* Add / Edit Contact Modal */}
             <Modal
                 open={!!modal}
@@ -276,7 +282,9 @@ export default function CompanyDetail() {
 
                     {modal === 'edit' && (
                         <div className="border-t pt-3 space-y-2">
-                            <p className="text-xs font-medium text-slate-700">Communication Preferences</p>
+                            <p className="text-xs font-medium text-slate-700">
+                                Communication Preferences
+                            </p>
                             <div className="grid grid-cols-2 gap-2 text-sm">
                                 <label className="flex items-center gap-2">
                                     <input

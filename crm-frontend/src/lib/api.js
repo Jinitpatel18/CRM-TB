@@ -103,6 +103,12 @@ export const api = {
     scheduleMeeting: (body) => request('/meetings/schedule', { method: 'POST', body }),
     availability: (query) => request('/calendar/availability', { query }),
 
+    // AI Assistant
+    aiStatus: () => request('/ai/status'),
+    aiGenerateTemplate: (body) => request('/ai/generate-template', { method: 'POST', body }),
+    aiImproveEmail: (body) => request('/ai/improve-email', { method: 'POST', body }),
+    aiAnalyzeCompany: (id) => request(`/ai/analyze-company/${id}`, { method: 'POST' }),
+    
     // Multi-company import
     importPreviewMulti: (file) => {
         const formData = new FormData();

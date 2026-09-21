@@ -1,17 +1,22 @@
 import { useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Input, { Textarea, Select } from '../components/Input';
+import AIGenerateModal from '../components/AIGenerateModal';
 import { useCreateTemplate } from '../hooks/useTemplates';
 
 const DEMO_VARS = ['CompanyName', 'ContactName', 'ContactRole', 'ContactEmail'];
 
 export default function Templates() {
     const create = useCreateTemplate();
+    const [aiOpen, setAiOpen] = useState(false);
     const [form, setForm] = useState({
-        name: '', type: 'Email', subject: '', body:
-            'Hi {{ContactName}},\n\nI wanted to reach out about {{CompanyName}}…',
+        name: '',
+        type: 'Email',
+        subject: '',
+        body: 'Hi {{ContactName}},\n\nI wanted to reach out about {{CompanyName}}…',
         applicable_roles: '',
     });
 
@@ -28,32 +33,63 @@ export default function Templates() {
             });
             toast.success('Template created');
             setForm({ ...form, name: '', subject: '', body: '' });
-        } catch (err) { toast.error(err.message); }
+        } catch (err) {
+            toast.error(err.message);
+        }
     };
 
     return (
         <div className="space-y-4">
-            <h1 className="text-2xl font-semibold">Create Template</h1>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-semibold">Create Template</h1>
+                    <p className="text-sm text-slate-500">
+                        Write manually or let AI generate for you
+                    </p>
+                </div>
+                <Button onClick={() => setAiOpen(true)}>
+                    <Sparkles size={14} className="mr-1.5" /> Generate with AI
+                </Button>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <Card title="Template" className="lg:col-span-2">
                     <form onSubmit={submit} className="space-y-4">
-                        <Input label="Name *" required value={form.name}
-                            onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                        <Select label="Type" value={form.type}
-                            onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                            <option>Email</option><option>WhatsApp</option><option>SMS</option>
+                        <Input
+                            label="Name *"
+                            required
+                            value={form.name}
+                            onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        />
+                        <Select
+                            label="Type"
+                            value={form.type}
+                            onChange={(e) => setForm({ ...form, type: e.target.value })}
+                        >
+                            <option>Email</option>
+                            <option>WhatsApp</option>
+                            <option>SMS</option>
                         </Select>
                         {form.type === 'Email' && (
-                            <Input label="Subject" value={form.subject}
-                                onChange={(e) => setForm({ ...form, subject: e.target.value })} />
+                            <Input
+                                label="Subject"
+                                value={form.subject}
+                                onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                            />
                         )}
-                        <Textarea label="Body *" required value={form.body}
-                            onChange={(e) => setForm({ ...form, body: e.target.value })} />
-                        <Input label="Applicable roles (comma separated)"
+                        <Textarea
+                            label="Body *"
+                            required
+                            value={form.body}
+                            onChange={(e) => setForm({ ...form, body: e.target.value })}
+                            rows={10}
+                        />
+                        <Input
+                            label="Applicable roles (comma separated)"
                             placeholder="CEO, CTO, Manager"
                             value={form.applicable_roles}
-                            onChange={(e) => setForm({ ...form, applicable_roles: e.target.value })} />
+                            onChange={(e) => setForm({ ...form, applicable_roles: e.target.value })}
+                        />
                         <div className="flex justify-end">
                             <Button type="submit" disabled={create.isPending}>
                                 {create.isPending ? 'Saving…' : 'Save Template'}
@@ -66,8 +102,12 @@ export default function Templates() {
                     <p className="text-xs text-slate-500 mb-2">Click to insert into body.</p>
                     <div className="flex flex-wrap gap-2">
                         {DEMO_VARS.map((v) => (
-                            <button key={v} type="button" onClick={() => insertVar(v)}
-                                className="text-xs px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded font-mono">
+                            <button
+                                key={v}
+                                type="button"
+                                onClick={() => insertVar(v)}
+                                className="text-xs px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded font-mono"
+                            >
                                 {`{{${v}}}`}
                             </button>
                         ))}
@@ -80,6 +120,20 @@ export default function Templates() {
                     </div>
                 </Card>
             </div>
+
+            <AIGenerateModal
+                open={aiOpen}
+                onClose={() => setAiOpen(false)}
+                onGenerated={(data) => {
+                    setForm({
+                        ...form,
+                        name: data.name || form.name,
+                        subject: data.subject || '',
+                        body: data.body,
+                        applicable_roles: (data.applicable_roles || []).join(', '),
+                    });
+                }}
+            />
         </div>
     );
 }
