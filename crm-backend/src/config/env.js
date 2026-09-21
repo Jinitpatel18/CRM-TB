@@ -97,4 +97,7 @@ export const env = {
         token: process.env.TWILIO_AUTH_TOKEN,
         from: process.env.TWILIO_WHATSAPP_FROM,
     },
+    gemini: {
+        apiKey: process.env.GEMINI_API_KEY,
+},
 };

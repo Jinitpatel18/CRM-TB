@@ -11,7 +11,6 @@ async function request(path, { method = 'GET', body, query } = {}) {
         if (qs) url += `?${qs}`;
     }
 
-    // Fresh JWT
     const { data: { session } } = await supabase.auth.getSession();
 
     const headers = { 'Content-Type': 'application/json' };
@@ -28,10 +27,40 @@ async function request(path, { method = 'GET', body, query } = {}) {
     let json = null;
     try { json = await res.json(); } catch { /* empty */ }
 
-    // Auto-signout on 401
     if (res.status === 401) {
         await supabase.auth.signOut();
     }
+
+    if (!res.ok || json?.success === false) {
+        const msg = json?.error?.message || `Request failed (${res.status})`;
+        const err = new Error(msg);
+        err.code = json?.error?.code;
+        err.status = res.status;
+        throw err;
+    }
+    return json?.data ?? json;
+}
+
+// ⬇️ Special handler for file uploads (multipart)
+async function requestMultipart(path, formData) {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    const headers = {};
+    if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+    }
+    // NOTE: Don't set Content-Type — browser will set it with boundary
+
+    const res = await fetch(`${BASE}${path}`, {
+        method: 'POST',
+        headers,
+        body: formData,
+    });
+
+    let json = null;
+    try { json = await res.json(); } catch { /* empty */ }
+
+    if (res.status === 401) await supabase.auth.signOut();
 
     if (!res.ok || json?.success === false) {
         const msg = json?.error?.message || `Request failed (${res.status})`;
@@ -58,6 +87,10 @@ export const api = {
 
     // Templates
     createTemplate: (body) => request('/templates', { method: 'POST', body }),
+    //Google oAuth
+    oauthStatus: () => request('/calendar/oauth/status'),
+    oauthUrl: () => request('/calendar/oauth/url'),
+    oauthDisconnect: () => request('/calendar/oauth/disconnect', { method: 'POST' }),
 
     // Activities
     sendMessage: (body) => request('/activities/send-message', { method: 'POST', body }),
@@ -69,6 +102,13 @@ export const api = {
     // Meetings
     scheduleMeeting: (body) => request('/meetings/schedule', { method: 'POST', body }),
     availability: (query) => request('/calendar/availability', { query }),
+
+    // Multi-company import
+    importPreviewMulti: (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return requestMultipart('/import/preview', formData);
+    },
 
     // Queue
     queueStatus: () => request('/queue/status'),
@@ -91,4 +131,21 @@ export const api = {
     // Audit
     listAuditLogs: (query = {}) => request('/audit-logs', { query }),
     auditStats: () => request('/audit-logs/stats'),
+
+    // ⬇️ Import (NEW)
+    importPreview: (companyId, file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('company_id', String(companyId));
+        return requestMultipart('/import/preview', formData);
+    },
+    importConfirm: (companyId, contacts, skipDuplicates = true) =>
+        request('/import/confirm', {
+            method: 'POST',
+            body: {
+                company_id: companyId,
+                contacts,
+                skip_duplicates: skipDuplicates,
+            },
+        }),
 };

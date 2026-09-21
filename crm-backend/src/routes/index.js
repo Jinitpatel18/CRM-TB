@@ -5,11 +5,12 @@ import { requireAuth, requireRole } from '../middleware/auth.js';
 import multer from 'multer';
 
 // validators
-import { createCompanySchema,  updateCompanyStatusSchema } from '../validators/company.validator.js';
+import { createCompanySchema, updateCompanyStatusSchema } from '../validators/company.validator.js';
 import { createContactSchema, updateContactSchema } from '../validators/contact.validator.js';
 import { createTemplateSchema } from '../validators/template.validator.js';
 import { sendMessageSchema, bulkSendSchema } from '../validators/activity.validator.js';
 import { scheduleMeetingSchema, availabilityQuerySchema } from '../validators/meeting.validator.js';
+import { importConfirmSchema } from '../validators/import.validator.js';
 
 // controllers
 import * as companyCtrl from '../controllers/company.controller.js';
@@ -22,6 +23,7 @@ import * as userCtrl from '../controllers/user.controller.js';
 import * as auditCtrl from '../controllers/audit.controller.js';
 import * as fileCtrl from '../controllers/file.controller.js';
 import * as analyticsCtrl from '../controllers/analytics.controller.js';
+import * as importCtrl from '../controllers/import.controller.js';
 
 
 
@@ -106,5 +108,19 @@ router.get('/analytics/top-companies', analyticsCtrl.topCompanies);
 router.get('/analytics/team-performance', analyticsCtrl.teamPerformance);
 router.get('/analytics/hourly', analyticsCtrl.hourly);
 router.get('/analytics/status-breakdown', analyticsCtrl.statusBreakdown);
+
+router.post(
+    '/import/preview',
+    requireRole('admin', 'sales'),
+    upload.single('file'),
+    importCtrl.preview
+);
+router.post(
+    '/import/confirm',
+    requireRole('admin', 'sales'),
+    validate(importConfirmSchema),
+    audit('import', 'contacts'),
+    importCtrl.confirm
+);
 
 export default router;
