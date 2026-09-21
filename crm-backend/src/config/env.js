@@ -1,43 +1,3 @@
-// export const env = {
-//     nodeEnv: process.env.NODE_ENV || 'development',
-//     port: Number(process.env.PORT || 4000),
-//     databaseUrl: process.env.DATABASE_URL,
-//     redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
-//     supabase: {
-//         url: process.env.SUPABASE_URL,
-//         key: process.env.SUPABASE_SERVICE_ROLE_KEY,
-//         bucket: process.env.SUPABASE_BUCKET || 'crm-attachments',
-//     },
-//     google: {
-//         clientId: process.env.GOOGLE_CLIENT_ID,
-//         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//         redirectUri: process.env.GOOGLE_REDIRECT_URI,
-//     },
-//     email: {
-//         provider: process.env.EMAIL_PROVIDER || 'gmail',
-//         fromName: process.env.EMAIL_FROM_NAME || 'CRM',
-//         fromAddress: process.env.EMAIL_FROM_ADDRESS,
-//         gmail: {
-//             user: process.env.GMAIL_USER,
-//             appPassword: process.env.GMAIL_APP_PASSWORD,
-//         },
-//         // Future providers ke liye jagah
-//         brevo: {
-//             apiKey: process.env.BREVO_API_KEY,
-//         },
-//         resend: {
-//             apiKey: process.env.RESEND_API_KEY,
-//         },
-//     },
-//     whatsapp: {
-//         enabled: process.env.WHATSAPP_ENABLED === 'true',   // default: OFF
-//         sid: process.env.TWILIO_ACCOUNT_SID,
-//         token: process.env.TWILIO_AUTH_TOKEN,
-//         from: process.env.TWILIO_WHATSAPP_FROM,
-//     },
-// };
-
-// src/config/env.js
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
@@ -90,8 +50,12 @@ export const env = {
             user: process.env.GMAIL_USER,
             appPassword: process.env.GMAIL_APP_PASSWORD,
         },
-        brevo: { apiKey: process.env.BREVO_API_KEY },
-        resend: { apiKey: process.env.RESEND_API_KEY },
+        brevo: {
+            apiKey: process.env.BREVO_API_KEY,
+        },
+        resend: {
+            apiKey: process.env.RESEND_API_KEY,
+        },
     },
     whatsapp: {
         enabled: process.env.WHATSAPP_ENABLED === 'true',
