@@ -55,14 +55,16 @@ console.log('🔍 Loading .env from:', envPath);
 const result = dotenv.config({ path: envPath });
 
 if (result.error) {
-    console.error('❌ Failed to load .env:', result.error.message);
-    console.error('   Current working directory:', process.cwd());
-    console.error('   Looking for .env at:', envPath);
+    // Silent on Render (env vars from dashboard)
+    if (process.env.NODE_ENV !== 'production') {
+        console.warn('⚠️  .env not found — using process.env (normal on Render)');
+    }
 } else {
-    console.log('✅ .env loaded successfully');
-    console.log('   Keys found:', Object.keys(result.parsed || {}).length);
+    if (process.env.NODE_ENV !== 'production') {
+        console.log('✅ .env loaded successfully');
+        console.log('   Keys found:', Object.keys(result.parsed || {}).length);
+    }
 }
-
 export const env = {
     nodeEnv: process.env.NODE_ENV || 'development',
     port: Number(process.env.PORT || 4000),
@@ -99,5 +101,5 @@ export const env = {
     },
     gemini: {
         apiKey: process.env.GEMINI_API_KEY,
-},
+    },
 };

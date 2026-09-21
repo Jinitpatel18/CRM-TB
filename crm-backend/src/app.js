@@ -12,7 +12,18 @@ app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 app.use(morgan('combined'));
 
-app.get('/health', (_req, res) => res.json({ ok: true }));
+// Root route — Render health checks
+app.get('/', (_req, res) => {
+    res.json({
+        ok: true,
+        service: 'CRM Backend',
+        version: '1.0.0',
+        timestamp: new Date().toISOString(),
+    });
+});
+
+// Favicon — 204 no content
+app.get('/favicon.ico', (_req, res) => res.status(204).end());
 app.use('/api', routes);
 
 app.use(notFound);

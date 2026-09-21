@@ -21,13 +21,21 @@ const getGmailTransporter = () => {
     }
 
     gmailTransporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // STARTTLS (not SSL) — Render IPv4 friendly
         auth: {
             user: env.email.gmail.user,
             pass: env.email.gmail.appPassword,
         },
+        tls: {
+            rejectUnauthorized: false,
+        },
+        // Force IPv4 (Render doesn't support IPv6 outbound)
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 20000,
     });
-
     logger.info(`[email:gmail] Transporter ready for ${env.email.gmail.user}`);
     return gmailTransporter;
 };
