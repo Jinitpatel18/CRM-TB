@@ -7,7 +7,15 @@ const genAI = env.gemini?.apiKey
     ? new GoogleGenAI({ apiKey: env.gemini.apiKey })
     : null;
 
-const MODEL = 'gemini-flash-latest';
+// Fallback models — priority order
+const FALLBACK_MODELS = [
+    'gemini-flash-latest',
+    'gemini-2.0-flash-001',
+    'gemini-2.0-flash-lite',
+    'gemini-2.5-flash-lite',
+    'gemini-2.5-flash',
+    'gemini-3.8-flash',
+];
 
 const parseJSON = (text, fallback = null) => {
     let cleaned = String(text || '')
@@ -36,9 +44,56 @@ const ensureConfigured = () => {
     }
 };
 
-export const generateTemplate = async ({ prompt, type = 'Email', tone = 'professional' }) => {
+/**
+ * Call Gemini with retry + fallback models.
+ * Handles 503 (server overloaded) gracefully.
+ */
+const callGemini = async (prompt) => {
     ensureConfigured();
 
+    const MAX_RETRIES = 2;
+    let lastError = null;
+
+    for (const modelName of FALLBACK_MODELS) {
+        for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                logger.info(`[ai] Trying ${modelName} (attempt ${attempt})`);
+
+                const result = await genAI.models.generateContent({
+                    model: modelName,
+                    contents: prompt,
+                });
+
+                logger.info(`[ai] ✅ Success with ${modelName}`);
+                return result.text;
+            } catch (err) {
+                const errorMsg = err.message || String(err);
+                lastError = err;
+
+                if (errorMsg.includes('503') || errorMsg.includes('UNAVAILABLE')) {
+                    logger.warn(`[ai] ${modelName} overloaded (attempt ${attempt})`);
+
+                    if (attempt < MAX_RETRIES) {
+                        await new Promise((r) => setTimeout(r, 1000 * attempt));
+                        continue;
+                    }
+                } else {
+                    logger.warn(`[ai] ${modelName} failed: ${errorMsg.slice(0, 150)}`);
+                    break; // try next model
+                }
+            }
+        }
+    }
+
+    logger.error(`[ai] All models failed. Last error: ${lastError?.message}`);
+    throw new AppError(
+        'AI service is temporarily unavailable. Please try again in a minute.',
+        503,
+        'AI_UNAVAILABLE'
+    );
+};
+
+export const generateTemplate = async ({ prompt, type = 'Email', tone = 'professional' }) => {
     const systemPrompt = `You are an expert B2B sales copywriter. Generate a ${type} template based on the user's request.
 
 RULES:
@@ -59,12 +114,7 @@ Return this exact JSON schema:
 User request: "${prompt}"`;
 
     try {
-        const result = await genAI.models.generateContent({
-            model: MODEL,
-            contents: systemPrompt,
-        });
-        const response = result.text;
-
+        const response = await callGemini(systemPrompt);
         const parsed = parseJSON(response);
         if (!parsed || !parsed.body) throw new Error('Invalid AI response');
 
@@ -75,18 +125,17 @@ User request: "${prompt}"`;
             applicable_roles: parsed.applicable_roles || [],
         };
     } catch (err) {
+        if (err instanceof AppError) throw err;
         logger.error(`[ai] generateTemplate failed: ${err.message}`);
         throw new AppError(`AI generation failed: ${err.message}`, 500, 'AI_FAILED');
     }
 };
 
 export const improveEmail = async ({ subject, body, instruction = 'Make it more professional and concise' }) => {
-    ensureConfigured();
-
     const systemPrompt = `You are an expert B2B sales editor. Improve the email below based on the instruction.
 
 CRITICAL RULES:
-1. PRESERVE all {{variables}} exactly — do NOT remove or modify them: {{ContactName}}, {{CompanyName}}, etc.
+1. PRESERVE all {{variables}} exactly — do NOT remove or modify them.
 2. Keep the core meaning and intent
 3. Instruction: ${instruction}
 4. Return ONLY valid JSON — no markdown, no explanation
@@ -103,12 +152,7 @@ Original body:
 ${body}`;
 
     try {
-        const result = await genAI.models.generateContent({
-            model: MODEL,
-            contents: systemPrompt,
-        });
-        const response = result.text;
-
+        const response = await callGemini(systemPrompt);
         const parsed = parseJSON(response);
         if (!parsed || !parsed.body) throw new Error('Invalid AI response');
 
@@ -118,19 +162,20 @@ ${body}`;
             improvements: parsed.improvements || [],
         };
     } catch (err) {
+        if (err instanceof AppError) throw err;
         logger.error(`[ai] improveEmail failed: ${err.message}`);
         throw new AppError(`AI improvement failed: ${err.message}`, 500, 'AI_FAILED');
     }
 };
 
 export const analyzeCompany = async ({ company, contacts, activities }) => {
-    ensureConfigured();
-
     const activitySummary = activities
         .slice(0, 20)
         .map((a) => {
             const when = a.sent_at || a.created_at || '';
-            const reply = a.response_received ? ` [REPLIED: ${(a.response_body || '').slice(0, 100)}]` : '';
+            const reply = a.response_received
+                ? ` [REPLIED: ${(a.response_body || '').slice(0, 100)}]`
+                : '';
             return `- ${a.activity_type} | "${a.subject || '(no subject)'}" | ${a.status} | ${when}${reply}`;
         })
         .join('\n');
@@ -171,17 +216,13 @@ Return ONLY valid JSON (no markdown) with this schema:
 }`;
 
     try {
-        const result = await genAI.models.generateContent({
-            model: MODEL,
-            contents: systemPrompt,
-        });
-        const response = result.text;
-
+        const response = await callGemini(systemPrompt);
         const parsed = parseJSON(response);
         if (!parsed || !parsed.summary) throw new Error('Invalid AI response');
 
         return parsed;
     } catch (err) {
+        if (err instanceof AppError) throw err;
         logger.error(`[ai] analyzeCompany failed: ${err.message}`);
         throw new AppError(`AI analysis failed: ${err.message}`, 500, 'AI_FAILED');
     }
