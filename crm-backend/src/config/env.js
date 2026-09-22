@@ -66,4 +66,5 @@ export const env = {
     gemini: {
         apiKey: process.env.GEMINI_API_KEY,
     },
+    frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
 };

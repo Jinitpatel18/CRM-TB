@@ -1,4 +1,5 @@
 import * as svc from '../services/calendar.service.js';
+import { env } from '../config/env.js';
 
 export const schedule = async (req, res, next) => {
     try {
@@ -21,22 +22,24 @@ export const oauthUrl = async (req, res, next) => {
     } catch (e) { next(e); }
 };
 
+
 export const oauthCallback = async (req, res, next) => {
+    const frontendUrl = env.frontendUrl || 'http://localhost:5173';
+
     try {
         const { code, error } = req.query;
         if (error) {
-            return res.redirect(`http://localhost:5173/settings?google=error&reason=${error}`);
+            return res.redirect(`${frontendUrl}/settings?google=error&reason=${error}`);
         }
         if (!code) throw new Error('Missing code');
 
         const result = await svc.exchangeCodeForTokens(code);
-        res.redirect(`http://localhost:5173/settings?google=connected&email=${result.email}`);
+        res.redirect(`${frontendUrl}/settings?google=connected&email=${result.email}`);
     } catch (e) {
         console.error('[oauth callback]', e.message);
-        res.redirect(`http://localhost:5173/settings?google=error&reason=${encodeURIComponent(e.message)}`);
+        res.redirect(`${frontendUrl}/settings?google=error&reason=${encodeURIComponent(e.message)}`);
     }
 };
-
 export const oauthStatus = async (req, res, next) => {
     try {
         const account = await svc.getConnectedAccount();
