@@ -15,7 +15,7 @@ const baseItems = [
     { to: '/send', label: 'Send Message', icon: MailPlus },
     { to: '/bulk-send', label: 'Bulk Send', icon: Send },
     { to: '/meetings', label: 'Meetings', icon: Calendar },
-    { to: '/analytics', label: 'Analytics', icon: BarChart3 },   // ← NAYA
+    { to: '/analytics', label: 'Analytics', icon: BarChart3 },
     { to: '/queue', label: 'Queue', icon: ListChecks },
 ];
 
@@ -24,7 +24,13 @@ const adminItems = [
     { to: '/audit-log', label: 'Audit Log', icon: ScrollText },
 ];
 
-export default function Sidebar() {
+const linkClass = ({ isActive }) =>
+    clsx(
+        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium',
+        isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100'
+    );
+
+export default function Sidebar({ onNavigate, className }) {
     const { user, profile, isAdmin, signOut } = useAuth();
 
     const handleLogout = async () => {
@@ -33,8 +39,8 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className="w-60 shrink-0 bg-white border-r border-slate-200 flex flex-col">
-            <div className="h-14 flex items-center px-5 border-b border-slate-100">
+        <aside className={clsx('w-60 shrink-0 bg-white border-r border-slate-200 flex flex-col h-full', className)}>
+            <div className="h-14 flex items-center px-5 border-b border-slate-100 shrink-0">
                 <span className="font-bold text-brand-600 text-lg">CRM</span>
             </div>
 
@@ -44,12 +50,8 @@ export default function Sidebar() {
                         key={to}
                         to={to}
                         end={end}
-                        className={({ isActive }) =>
-                            clsx(
-                                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium',
-                                isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100'
-                            )
-                        }
+                        onClick={onNavigate}
+                        className={linkClass}
                     >
                         <Icon size={18} /> {label}
                     </NavLink>
@@ -65,12 +67,8 @@ export default function Sidebar() {
                             <NavLink
                                 key={to}
                                 to={to}
-                                className={({ isActive }) =>
-                                    clsx(
-                                        'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium',
-                                        isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100'
-                                    )
-                                }
+                                onClick={onNavigate}
+                                className={linkClass}
                             >
                                 <Icon size={18} /> {label}
                             </NavLink>
@@ -81,20 +79,12 @@ export default function Sidebar() {
                 <div className="pt-3 pb-1 px-3 text-xs uppercase tracking-wide text-slate-400">
                     Account
                 </div>
-                <NavLink
-                    to="/settings"
-                    className={({ isActive }) =>
-                        clsx(
-                            'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium',
-                            isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100'
-                        )
-                    }
-                >
+                <NavLink to="/settings" onClick={onNavigate} className={linkClass}>
                     <SettingsIcon size={18} /> Settings
                 </NavLink>
             </nav>
 
-            <div className="p-3 border-t border-slate-100 space-y-2">
+            <div className="p-3 border-t border-slate-100 space-y-2 safe-bottom shrink-0">
                 <div className="flex items-center gap-2 px-3 py-2">
                     <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
                         <User size={14} className="text-brand-700" />
@@ -110,7 +100,7 @@ export default function Sidebar() {
                 </div>
                 <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50"
+                    className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50"
                 >
                     <LogOut size={18} /> Sign Out
                 </button>

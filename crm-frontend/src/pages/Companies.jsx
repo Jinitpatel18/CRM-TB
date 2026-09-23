@@ -81,7 +81,7 @@ export default function Companies() {
     return (
         <div className="space-y-4">
             {/* Header */}
-            <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h1 className="text-2xl font-semibold">Companies</h1>
                     <p className="text-sm text-slate-500">
@@ -100,7 +100,7 @@ export default function Companies() {
 
             {/* Filters */}
             <Card>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     <Input
                         label="Search"
                         placeholder="Name, email, industry…"
@@ -219,7 +219,7 @@ export default function Companies() {
                             <option key={s}>{s}</option>
                         ))}
                     </Select>
-                    <div className="flex justify-end gap-2 pt-2">
+                    <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
                         <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
                             Cancel
                         </Button>

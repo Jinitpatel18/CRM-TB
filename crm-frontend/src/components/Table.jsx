@@ -1,33 +1,81 @@
+import { ChevronRight } from 'lucide-react';
+
 export default function Table({ columns, data, empty = 'No data', rowKey = 'id', onRowClick }) {
+    const clickable = !!onRowClick;
+
     return (
-        <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-                <thead>
-                    <tr className="border-b border-slate-200 text-left text-slate-500">
-                        {columns.map((c) => (
-                            <th key={c.key} className="px-4 py-2 font-medium">{c.label}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {data?.length === 0 && (
-                        <tr><td colSpan={columns.length} className="px-4 py-8 text-center text-slate-400">{empty}</td></tr>
-                    )}
-                    {data?.map((row) => (
-                        <tr
+        <div>
+            {/* ── Mobile: card list ── */}
+            <div className="sm:hidden divide-y divide-slate-100">
+                {data?.length === 0 && (
+                    <p className="py-8 text-center text-sm text-slate-400">{empty}</p>
+                )}
+                {data?.map((row) => {
+                    const title = columns[0];
+                    const rest = columns.slice(1);
+                    return (
+                        <div
                             key={row[rowKey]}
                             onClick={() => onRowClick?.(row)}
-                            className={`border-b border-slate-100 hover:bg-slate-50 ${onRowClick ? 'cursor-pointer' : ''}`}
+                            className={`py-3 ${clickable ? 'cursor-pointer active:bg-slate-50' : ''}`}
                         >
+                            <div className="flex items-center justify-between gap-2">
+                                <div className="min-w-0 flex-1">
+                                    <div className="font-medium text-slate-800 break-words">
+                                        {title.render ? title.render(row) : row[title.key]}
+                                    </div>
+                                </div>
+                                {clickable && (
+                                    <ChevronRight size={16} className="text-slate-400 shrink-0" />
+                                )}
+                            </div>
+                            {rest.length > 0 && (
+                                <dl className="mt-2 space-y-1">
+                                    {rest.map((c) => (
+                                        <div key={c.key} className="flex items-start justify-between gap-3 text-sm">
+                                            <dt className="text-slate-400 text-xs pt-0.5 shrink-0">{c.label}</dt>
+                                            <dd className="text-right min-w-0 break-words">
+                                                {c.render ? c.render(row) : row[c.key] ?? '—'}
+                                            </dd>
+                                        </div>
+                                    ))}
+                                </dl>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* ── Desktop: table ── */}
+            <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead>
+                        <tr className="border-b border-slate-200 text-left text-slate-500">
                             {columns.map((c) => (
-                                <td key={c.key} className="px-4 py-2">
-                                    {c.render ? c.render(row) : row[c.key]}
-                                </td>
+                                <th key={c.key} className="px-4 py-2 font-medium whitespace-nowrap">{c.label}</th>
                             ))}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {data?.length === 0 && (
+                            <tr><td colSpan={columns.length} className="px-4 py-8 text-center text-slate-400">{empty}</td></tr>
+                        )}
+                        {data?.map((row) => (
+                            <tr
+                                key={row[rowKey]}
+                                onClick={() => onRowClick?.(row)}
+                                className={`border-b border-slate-100 hover:bg-slate-50 ${clickable ? 'cursor-pointer' : ''}`}
+                            >
+                                {columns.map((c) => (
+                                    <td key={c.key} className="px-4 py-2">
+                                        {c.render ? c.render(row) : row[c.key]}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

@@ -63,7 +63,7 @@ export default function AIGenerateModal({ open, onClose, onGenerated }) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Select label="Type" value={type} onChange={(e) => setType(e.target.value)}>
                         <option>Email</option>
                         <option>WhatsApp</option>
@@ -83,7 +83,7 @@ export default function AIGenerateModal({ open, onClose, onGenerated }) {
                     variables so your template works with any contact.
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2 border-t">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t">
                     <Button variant="secondary" onClick={onClose}>
                         Cancel
                     </Button>

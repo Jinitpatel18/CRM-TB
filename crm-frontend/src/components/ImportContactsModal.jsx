@@ -171,7 +171,7 @@ export default function ImportContactsModal({ open, onClose, companyId, onSucces
                         </p>
                     </div>
 
-                    <div className="flex justify-end gap-2 pt-2 border-t">
+                    <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t">
                         <Button variant="secondary" onClick={handleClose}>
                             Cancel
                         </Button>
@@ -191,8 +191,8 @@ export default function ImportContactsModal({ open, onClose, companyId, onSucces
             {/* STEP 2: PREVIEW */}
             {step === 'preview' && preview && (
                 <div className="space-y-4">
-                    <div className="flex items-center justify-between bg-slate-50 rounded-lg p-3">
-                        <div className="flex items-center gap-4 text-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-50 rounded-lg p-3">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
                             <div>
                                 <span className="text-slate-500">Total:</span>{' '}
                                 <span className="font-semibold">{preview.total}</span>
@@ -211,7 +211,7 @@ export default function ImportContactsModal({ open, onClose, companyId, onSucces
                         <Badge tone="Active">{preview.source}</Badge>
                     </div>
 
-                    <div className="border border-slate-200 rounded-lg overflow-hidden max-h-96 overflow-y-auto">
+                    <div className="border border-slate-200 rounded-lg overflow-hidden max-h-96 overflow-y-auto overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead className="bg-slate-50 sticky top-0 z-10">
                                 <tr className="text-left text-xs text-slate-500">
@@ -299,14 +299,14 @@ export default function ImportContactsModal({ open, onClose, companyId, onSucces
                         Skip duplicate contacts (matching email or phone)
                     </label>
 
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t">
+                    <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t">
                         <button
                             onClick={() => setStep('upload')}
                             className="text-sm text-slate-500 hover:text-slate-700"
                         >
                             ← Back
                         </button>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col-reverse sm:flex-row gap-2">
                             <Button variant="secondary" onClick={handleClose}>
                                 Cancel
                             </Button>

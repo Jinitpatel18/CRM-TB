@@ -40,14 +40,14 @@ export default function Templates() {
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h1 className="text-2xl font-semibold">Create Template</h1>
                     <p className="text-sm text-slate-500">
                         Write manually or let AI generate for you
                     </p>
                 </div>
-                <Button onClick={() => setAiOpen(true)}>
+                <Button onClick={() => setAiOpen(true)} className="shrink-0">
                     <Sparkles size={14} className="mr-1.5" /> Generate with AI
                 </Button>
             </div>

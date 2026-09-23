@@ -87,7 +87,7 @@ export default function Meetings() {
                         <Textarea label="Description" value={form.description}
                             onChange={(e) => setForm({ ...form, description: e.target.value })} />
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Input label="Start *" type="datetime-local" required value={form.start_time}
                                 onChange={(e) => setForm({ ...form, start_time: e.target.value })} />
                             <Input label="End *" type="datetime-local" required value={form.end_time}
@@ -99,9 +99,9 @@ export default function Meetings() {
                         <Input label="Meeting link (optional — auto-generated if blank)" value={form.meeting_link}
                             onChange={(e) => setForm({ ...form, meeting_link: e.target.value })} />
 
-                        <div className="flex gap-2 justify-end">
-                            <Button type="button" variant="secondary" onClick={checkAvail}>Check availability</Button>
-                            <Button type="submit" disabled={schedule.isPending}>
+                        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+                            <Button type="button" variant="secondary" onClick={checkAvail} className="w-full sm:w-auto">Check availability</Button>
+                            <Button type="submit" disabled={schedule.isPending} className="w-full sm:w-auto">
                                 {schedule.isPending ? 'Scheduling…' : 'Schedule'}
                             </Button>
                         </div>

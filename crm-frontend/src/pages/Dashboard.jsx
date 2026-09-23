@@ -12,7 +12,7 @@ export default function Dashboard() {
         <div className="space-y-6">
             <h1 className="text-2xl font-semibold">Dashboard</h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <Card title="Email Queue">
                     <div className="grid grid-cols-2 gap-2 text-sm">
                         {Object.entries(queue?.emailQueue || {}).map(([k, v]) => (
@@ -52,7 +52,7 @@ export default function Dashboard() {
             </Card>
 
             <Card title="Quick actions">
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
                     <Link to="/companies" className="text-brand-600 hover:underline text-sm">+ New Company</Link>
                     <Link to="/send" className="text-brand-600 hover:underline text-sm">+ Send Message</Link>
                     <Link to="/meetings" className="text-brand-600 hover:underline text-sm">+ Schedule Meeting</Link>

@@ -164,7 +164,7 @@ export default function ImportCompaniesModal({ open, onClose, onSuccess }) {
             {step === 'preview' && preview && (
                 <div className="space-y-4">
                     {/* Summary */}
-                    <div className="grid grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div className="bg-slate-50 rounded-lg p-3">
                             <div className="text-xs text-slate-500">Companies</div>
                             <div className="text-lg font-semibold">{companies.length}</div>
@@ -206,7 +206,7 @@ export default function ImportCompaniesModal({ open, onClose, onSuccess }) {
                     </div>
 
                     {/* Contacts table */}
-                    <div className="border border-slate-200 rounded-lg overflow-hidden max-h-72 overflow-y-auto">
+                    <div className="border border-slate-200 rounded-lg overflow-hidden max-h-72 overflow-y-auto overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead className="bg-slate-50 sticky top-0 z-10">
                                 <tr className="text-left text-xs text-slate-500">
@@ -274,11 +274,11 @@ export default function ImportCompaniesModal({ open, onClose, onSuccess }) {
                         Skip duplicate contacts (matching email or phone in same company)
                     </label>
 
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t">
+                    <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t">
                         <button onClick={() => setStep('upload')} className="text-sm text-slate-500 hover:text-slate-700">
                             ← Back
                         </button>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col-reverse sm:flex-row gap-2">
                             <Button variant="secondary" onClick={handleClose}>Cancel</Button>
                             <Button onClick={handleImport} disabled={loading || selectedCount === 0}>
                                 {loading ? (
@@ -300,7 +300,7 @@ export default function ImportCompaniesModal({ open, onClose, onSuccess }) {
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold">Import Complete</h3>
-                        <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
+                        <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-3 text-sm">
                             <div className="bg-slate-50 rounded-lg p-3">
                                 <div className="text-2xl font-semibold text-brand-600">{result.imported}</div>
                                 <div className="text-xs text-slate-500">Contacts</div>

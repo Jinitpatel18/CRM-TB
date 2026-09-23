@@ -122,9 +122,9 @@ export default function CompanyDetail() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-start justify-between flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center flex-wrap gap-2 sm:gap-3">
                         <h1 className="text-2xl font-semibold">{company.name}</h1>
                         <StatusDropdown value={company.status} onChange={handleStatusChange} />
                     </div>
@@ -233,9 +233,7 @@ export default function CompanyDetail() {
                         required
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    />
-
-                    <div className="grid grid-cols-2 gap-4">
+                    />                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
                             label="Email"
                             type="email"
@@ -249,7 +247,7 @@ export default function CompanyDetail() {
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
                             label="Role"
                             placeholder="CEO, Manager…"
@@ -326,7 +324,7 @@ export default function CompanyDetail() {
                         </div>
                     )}
 
-                    <div className="flex justify-end gap-2">
+                    <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
                         <Button type="button" variant="secondary" onClick={() => setModal(null)}>
                             Cancel
                         </Button>
@@ -344,7 +342,7 @@ export default function CompanyDetail() {
             <Modal open={!!replyModal} onClose={() => setReplyModal(null)} title="Customer Reply">
                 {replyModal && (
                     <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                             <div>
                                 <p className="text-xs text-slate-500 mb-1">Subject</p>
                                 <p className="font-medium text-slate-800">{replyModal.subject || '—'}</p>

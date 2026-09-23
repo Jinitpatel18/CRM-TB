@@ -12,10 +12,10 @@ export default function Queue() {
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
                 <h1 className="text-2xl font-semibold">Queue Status</h1>
                 <button onClick={() => refetch()}
-                    className="text-sm text-brand-600 hover:underline">
+                    className="text-sm text-brand-600 hover:underline shrink-0">
                     {isFetching ? 'Refreshing…' : 'Refresh'}
                 </button>
             </div>

@@ -235,7 +235,7 @@ export default function Team() {
                             return (
                                 <div
                                     key={u.id}
-                                    className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50/60 transition"
+                                    className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 sm:px-5 py-4 hover:bg-slate-50/60 transition"
                                 >
                                     {/* Avatar */}
                                     <div
@@ -245,7 +245,7 @@ export default function Team() {
                                     </div>
 
                                     {/* Info */}
-                                    <div className="flex-1 min-w-0">
+                                    <div className="flex-1 min-w-[140px]">
                                         <div className="flex items-center gap-2">
                                             <span className="font-medium text-sm text-slate-800 truncate">
                                                 {u.email}
@@ -283,7 +283,7 @@ export default function Team() {
                                     </div>
 
                                     {/* Status */}
-                                    <div className="shrink-0 w-24">
+                                    <div className="shrink-0">
                                         {u.status === 'active' ? (
                                             <span className="inline-flex items-center gap-1.5 text-xs text-green-700">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
@@ -298,7 +298,7 @@ export default function Team() {
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="shrink-0 w-24 text-right">
+                                    <div className="shrink-0 sm:ml-auto text-right">
                                         {!isMe && (
                                             <button
                                                 onClick={() => handleStatus(u)}
