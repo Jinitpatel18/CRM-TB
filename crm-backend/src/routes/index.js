@@ -131,6 +131,12 @@ router.get('/analytics/hourly', analyticsCtrl.hourly);
 router.get('/analytics/status-breakdown', analyticsCtrl.statusBreakdown);
 
 router.post(
+    '/import/detect-columns',
+    requireRole('admin', 'sales'),
+    upload.single('file'),
+    importCtrl.detectColumns
+);
+router.post(
     '/import/preview',
     requireRole('admin', 'sales'),
     upload.single('file'),

@@ -12,6 +12,10 @@ export const preview = async (req, res, next) => {
     try {
         if (!req.file) throw new AppError('No file uploaded', 400, 'NO_FILE');
 
+        const columnMapping = req.body.column_mapping
+            ? JSON.parse(req.body.column_mapping)
+            : null;
+
         const companyIdRaw = req.body.company_id;
         const isMulti =
             !companyIdRaw || companyIdRaw === 'null' || companyIdRaw === '';
@@ -28,6 +32,7 @@ export const preview = async (req, res, next) => {
             buffer: req.file.buffer,
             fileName: req.file.originalname,
             mimeType: req.file.mimetype,
+            columnMapping,
         });
 
         // ---- Multi-company mode ----
@@ -260,3 +265,23 @@ async function confirmMulti(req, res, { contacts, skip_duplicates }) {
         },
     });
 }
+/**
+ * POST /api/import/detect-columns
+ * Upload file → return headers + sample rows + auto-detected mapping
+ */
+export const detectColumns = async (req, res, next) => {
+    try {
+        if (!req.file) throw new AppError('No file uploaded', 400, 'NO_FILE');
+
+        const result = await svc.parseImportFileWithMapping({
+            buffer: req.file.buffer,
+            fileName: req.file.originalname,
+            mimeType: req.file.mimetype,
+            columnMapping: null,
+        });
+
+        res.json({ success: true, data: result });
+    } catch (e) {
+        next(e);
+    }
+};

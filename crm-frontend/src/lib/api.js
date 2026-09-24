@@ -108,7 +108,7 @@ export const api = {
     aiGenerateTemplate: (body) => request('/ai/generate-template', { method: 'POST', body }),
     aiImproveEmail: (body) => request('/ai/improve-email', { method: 'POST', body }),
     aiAnalyzeCompany: (id) => request(`/ai/analyze-company/${id}`, { method: 'POST' }),
-    
+
     // Multi-company import
     importPreviewMulti: (file) => {
         const formData = new FormData();
@@ -139,11 +139,17 @@ export const api = {
     auditStats: () => request('/audit-logs/stats'),
 
     // ⬇️ Import (NEW)
-    importPreview: (companyId, file) => {
+    importPreview: (companyId, file, columnMapping) => {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('company_id', String(companyId));
+        if (companyId) formData.append('company_id', String(companyId));
+        if (columnMapping) formData.append('column_mapping', JSON.stringify(columnMapping));
         return requestMultipart('/import/preview', formData);
+    },
+    detectColumns: (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return requestMultipart('/import/detect-columns', formData);
     },
     importConfirm: (companyId, contacts, skipDuplicates = true) =>
         request('/import/confirm', {

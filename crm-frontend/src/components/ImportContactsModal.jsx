@@ -5,6 +5,7 @@ import Modal from './Modal';
 import Button from './Button';
 import Badge from './Badge';
 import { api } from '../lib/api';
+import ColumnMappingStep from './ColumnMappingStep';
 
 export default function ImportContactsModal({ open, onClose, companyId, onSuccess }) {
     const [step, setStep] = useState('upload');
@@ -16,6 +17,7 @@ export default function ImportContactsModal({ open, onClose, companyId, onSucces
     const [skipDuplicates, setSkipDuplicates] = useState(true);
     const [result, setResult] = useState(null);
     const inputRef = useRef(null);
+    const [columnMapping, setColumnMapping] = useState(null);
 
     const reset = () => {
         setStep('upload');
@@ -48,14 +50,29 @@ export default function ImportContactsModal({ open, onClose, companyId, onSucces
         if (!file) return;
         setParsing(true);
         try {
-            const data = await api.importPreview(companyId, file);
+            const detection = await api.detectColumns(file);
+            setPreview(detection);
+            setColumnMapping(detection.autoMapping || {});
+            setStep('map-columns');
+        } catch (err) {
+            toast.error(err.message);
+        } finally {
+            setParsing(false);
+        }
+    };
+
+    const handleMappingConfirm = async (mapping) => {
+        setColumnMapping(mapping);
+        setParsing(true);
+        try {
+            // Single company:
+            const data = await api.importPreview(companyId, file, mapping);
+            // OR multi company:
+            // const data = await api.importPreview(null, file, mapping);
+
             setPreview(data);
-            setRows(
-                data.contacts.map((c) => ({
-                    ...c,
-                    selected: !c.duplicate,
-                }))
-            );
+            setRows(data.contacts.map((c) => ({ ...c, selected: !c.duplicate })));
+            if (data.companies) setCompanies(data.companies);
             setStep('preview');
         } catch (err) {
             toast.error(err.message);
@@ -111,28 +128,29 @@ export default function ImportContactsModal({ open, onClose, companyId, onSucces
         <Modal open={open} onClose={handleClose} title="Import Contacts" size="xl">
             {/* Stepper */}
             <div className="flex items-center gap-2 mb-6 text-xs">
-                {['upload', 'preview', 'result'].map((s, i) => (
-                    <div key={s} className="flex items-center gap-2">
-                        <div
-                            className={`w-6 h-6 rounded-full flex items-center justify-center font-medium ${step === s
-                                    ? 'bg-brand-600 text-white'
-                                    : ['upload', 'preview', 'result'].indexOf(step) > i
-                                        ? 'bg-green-100 text-green-700'
-                                        : 'bg-slate-100 text-slate-400'
-                                }`}
-                        >
-                            {['upload', 'preview', 'result'].indexOf(step) > i ? '✓' : i + 1}
+                {['upload', 'map-columns', 'preview', 'result'].map((s, i) => {
+                    const stepIndex = ['upload', 'map-columns', 'preview', 'result'].indexOf(step);
+                    const labels = {
+                        upload: 'Upload',
+                        'map-columns': 'Map Columns',
+                        preview: 'Preview',
+                        result: 'Done',
+                    };
+                    return (
+                        <div key={s} className="flex items-center gap-2">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center font-medium ${step === s ? 'bg-brand-600 text-white'
+                                : stepIndex > i ? 'bg-green-100 text-green-700'
+                                    : 'bg-slate-100 text-slate-400'
+                                }`}>
+                                {stepIndex > i ? '✓' : i + 1}
+                            </div>
+                            <span className={step === s ? 'font-medium text-slate-800' : 'text-slate-500'}>
+                                {labels[s]}
+                            </span>
+                            {i < 3 && <div className="w-8 h-px bg-slate-200" />}
                         </div>
-                        <span
-                            className={
-                                step === s ? 'font-medium text-slate-800' : 'text-slate-500 capitalize'
-                            }
-                        >
-                            {s === 'upload' ? 'Upload' : s === 'preview' ? 'Preview & Edit' : 'Done'}
-                        </span>
-                        {i < 2 && <div className="w-8 h-px bg-slate-200" />}
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* STEP 1: UPLOAD */}
@@ -186,6 +204,18 @@ export default function ImportContactsModal({ open, onClose, companyId, onSucces
                         </Button>
                     </div>
                 </div>
+            )}
+
+            {step === 'map-columns' && preview && (
+                <ColumnMappingStep
+                    headers={preview.headers || []}
+                    sampleRow={preview.sampleRows?.[0] || {}}
+                    autoMapping={preview.autoMapping || {}}
+                    totalRows={preview.totalRows || 0}
+                    onConfirm={handleMappingConfirm}
+                    onBack={() => setStep('upload')}
+                    loading={parsing}
+                />
             )}
 
             {/* STEP 2: PREVIEW */}
