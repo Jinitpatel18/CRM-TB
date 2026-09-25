@@ -42,7 +42,7 @@ export default function LiveActivityFeed({ orgId, limit = 10 }) {
         };
     }, [orgId, limit]);
 
-    // Reset live events when org changes
+    // Reset live events when org switch
     useEffect(() => {
         setLiveEvents([]);
     }, [orgId]);
@@ -54,12 +54,12 @@ export default function LiveActivityFeed({ orgId, limit = 10 }) {
     ].slice(0, limit);
 
     if (isLoading) {
-        return <p className="text-sm text-slate-400">Loading activities…</p>;
+        return <p className="text-sm text-slate-400 dark:text-slate-500">Loading activities…</p>;
     }
 
     if (combined.length === 0) {
         return (
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-400 dark:text-slate-500">
                 No activities yet. Send an email to see it here.
             </p>
         );
@@ -73,27 +73,27 @@ export default function LiveActivityFeed({ orgId, limit = 10 }) {
                 return (
                     <div
                         key={row._id || row.id || idx}
-                        className={`flex items-center justify-between text-sm border-b border-slate-100 pb-2 ${isNew ? 'bg-green-50/40 -mx-2 px-2 rounded' : ''
+                        className={`flex items-center justify-between text-sm border-b border-slate-100 dark:border-slate-800 pb-2 ${isNew ? 'bg-green-50/40 dark:bg-green-500/10 -mx-2 px-2 rounded' : ''
                             }`}
                     >
                         <div className="truncate flex-1">
                             <span
-                                className={`font-medium mr-2 ${isNew ? 'text-green-700' : isUpdate ? 'text-blue-700' : 'text-slate-600'
+                                className={`font-medium mr-2 ${isNew ? 'text-green-700 dark:text-green-400' : isUpdate ? 'text-blue-700 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'
                                     }`}
                             >
                                 {isNew ? '●' : isUpdate ? '↻' : '◦'}
                             </span>
-                            <span className="text-slate-500">
+                            <span className="text-slate-500 dark:text-slate-400">
                                 {row.activity_type} #{row.id}
                                 {row.subject ? ` — ${row.subject}` : ''}
                             </span>
                             {row.response_received && (
-                                <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
+                                <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 text-xs font-medium">
                                     💬 Reply
                                 </span>
                             )}
                             {row.sent_by_email && (
-                                <span className="ml-2 text-xs text-slate-400">
+                                <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">
                                     by {row.sent_by_name || row.sent_by_email}
                                 </span>
                             )}

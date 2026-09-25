@@ -83,11 +83,11 @@ export default function Companies() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-semibold">Companies</h1>
-                    <p className="text-sm text-slate-500">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Companies</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         {companies.length} total ·{' '}
-                        <span className="text-green-600">{counts.Active || 0} active</span> ·{' '}
-                        <span className="text-slate-500">{counts.Inactive || 0} inactive</span>
+                        <span className="text-green-600 dark:text-green-400">{counts.Active || 0} active</span> ·{' '}
+                        <span className="text-slate-500 dark:text-slate-400">{counts.Inactive || 0} inactive</span>
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export default function Companies() {
                                     setStatusFilter('');
                                     setSearch('');
                                 }}
-                                className="text-sm text-brand-600 hover:underline"
+                                className="text-sm text-brand-600 dark:text-brand-400 hover:underline"
                             >
                                 Clear filters
                             </button>
@@ -137,7 +137,7 @@ export default function Companies() {
             {/* Table */}
             <Card>
                 {isLoading ? (
-                    <p className="text-sm text-slate-500">Loading…</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Loading…</p>
                 ) : (
                     <Table
                         data={filtered}
@@ -149,9 +149,9 @@ export default function Companies() {
                                 label: 'Name',
                                 render: (r) => (
                                     <div>
-                                        <span className="font-medium text-slate-800">{r.name}</span>
+                                        <span className="font-medium text-slate-800 dark:text-slate-100">{r.name}</span>
                                         {r.industry && (
-                                            <div className="text-xs text-slate-400">{r.industry}</div>
+                                            <div className="text-xs text-slate-400 dark:text-slate-500">{r.industry}</div>
                                         )}
                                     </div>
                                 ),
@@ -161,7 +161,7 @@ export default function Companies() {
                                 key: 'contact_count',
                                 label: 'Contacts',
                                 render: (r) => (
-                                    <span className="text-slate-600 text-sm">{r.contact_count}</span>
+                                    <span className="text-slate-600 dark:text-slate-300 text-sm">{r.contact_count}</span>
                                 ),
                             },
                             {

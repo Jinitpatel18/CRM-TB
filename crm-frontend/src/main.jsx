@@ -6,22 +6,26 @@ import { Toaster } from 'react-hot-toast';
 import App from './App';
 import { queryClient } from './lib/queryClient';
 import { AuthProvider } from './lib/AuthContext';
+import { ThemeProvider } from './lib/ThemeContext';
 import './index.css';
 import { OrgProvider } from './lib/OrgContext';
+import AppToaster from './components/AppToaster';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        <QueryClientProvider client={queryClient}>
-            <BrowserRouter
-                future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-            >
-                <AuthProvider>
-                    <OrgProvider>
+        <ThemeProvider>
+            <QueryClientProvider client={queryClient}>
+                <BrowserRouter
+                    future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+                >
+                    <AuthProvider>
+                        <OrgProvider>
                         <App />
-                        <Toaster position="top-right" />
-                    </OrgProvider>
-                </AuthProvider>
-            </BrowserRouter>
-        </QueryClientProvider>
+                        <AppToaster />
+                        </OrgProvider>
+                    </AuthProvider>
+                </BrowserRouter>
+            </QueryClientProvider>
+        </ThemeProvider>
     </React.StrictMode>
 );

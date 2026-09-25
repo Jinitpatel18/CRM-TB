@@ -116,8 +116,8 @@ export default function CompanyDetail() {
         }
     };
 
-    if (isLoading) return <p>Loading…</p>;
-    if (!company) return <p>Company not found.</p>;
+    if (isLoading) return <p className="text-sm text-slate-500 dark:text-slate-400 p-6">Loading…</p>;
+    if (!company) return <p className="text-sm text-slate-500 dark:text-slate-400 p-6">Company not found.</p>;
 
     return (
         <div className="space-y-6">
@@ -125,10 +125,10 @@ export default function CompanyDetail() {
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div>
                     <div className="flex items-center flex-wrap gap-2 sm:gap-3">
-                        <h1 className="text-2xl font-semibold">{company.name}</h1>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{company.name}</h1>
                         <StatusDropdown value={company.status} onChange={handleStatusChange} />
                     </div>
-                    <p className="text-slate-500 text-sm mt-1">
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
                         {company.industry || '—'} · {company.email || 'no email'}
                     </p>
                 </div>
@@ -152,7 +152,7 @@ export default function CompanyDetail() {
                             label: 'Name',
                             render: (r) => (
                                 <div className="flex items-center gap-2">
-                                    <span className="text-brand-600 font-medium">{r.name}</span>
+                                    <span className="text-brand-600 dark:text-brand-400 font-medium">{r.name}</span>
                                     {r.is_primary_contact && <Badge>Primary</Badge>}
                                     {r.do_not_contact && <Badge tone="Failed">DNC</Badge>}
                                 </div>
@@ -204,12 +204,12 @@ export default function CompanyDetail() {
                                             e.stopPropagation();
                                             setReplyModal(r);
                                         }}
-                                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium hover:bg-emerald-200 transition"
+                                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 text-xs font-medium hover:bg-emerald-200 dark:hover:bg-emerald-500/25 transition"
                                     >
                                         💬 Reply
                                     </button>
                                 ) : (
-                                    <span className="text-slate-400 text-xs">—</span>
+                                    <span className="text-slate-400 dark:text-slate-500 text-xs">—</span>
                                 ),
                         },
                     ]}
@@ -233,7 +233,8 @@ export default function CompanyDetail() {
                         required
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    />                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
                             label="Email"
                             type="email"
@@ -267,56 +268,61 @@ export default function CompanyDetail() {
                         )}
                     </div>
 
-                    <label className="flex items-center gap-2 text-sm">
+                    <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                         <input
                             type="checkbox"
                             checked={form.is_primary_contact}
                             onChange={(e) =>
                                 setForm({ ...form, is_primary_contact: e.target.checked })
                             }
+                            className="rounded border-slate-300 dark:border-slate-600 bg-transparent dark:bg-slate-800 text-brand-600 dark:text-brand-400 focus:ring-brand-500/30"
                         />
                         Primary contact
                     </label>
 
                     {modal === 'edit' && (
-                        <div className="border-t pt-3 space-y-2">
-                            <p className="text-xs font-medium text-slate-700">
+                        <div className="border-t border-slate-100 dark:border-slate-800 pt-3 space-y-2">
+                            <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                 Communication Preferences
                             </p>
                             <div className="grid grid-cols-2 gap-2 text-sm">
-                                <label className="flex items-center gap-2">
+                                <label className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                                     <input
                                         type="checkbox"
                                         checked={form.email_optin}
                                         onChange={(e) => setForm({ ...form, email_optin: e.target.checked })}
+                                        className="rounded border-slate-300 dark:border-slate-600 bg-transparent dark:bg-slate-800 text-brand-600 dark:text-brand-400 focus:ring-brand-500/30"
                                     />
                                     Email opt-in
                                 </label>
-                                <label className="flex items-center gap-2">
+                                <label className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                                     <input
                                         type="checkbox"
                                         checked={form.whatsapp_optin}
                                         onChange={(e) =>
                                             setForm({ ...form, whatsapp_optin: e.target.checked })
                                         }
+                                        className="rounded border-slate-300 dark:border-slate-600 bg-transparent dark:bg-slate-800 text-brand-600 dark:text-brand-400 focus:ring-brand-500/30"
                                     />
                                     WhatsApp opt-in
                                 </label>
-                                <label className="flex items-center gap-2">
+                                <label className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                                     <input
                                         type="checkbox"
                                         checked={form.call_optin}
                                         onChange={(e) => setForm({ ...form, call_optin: e.target.checked })}
+                                        className="rounded border-slate-300 dark:border-slate-600 bg-transparent dark:bg-slate-800 text-brand-600 dark:text-brand-400 focus:ring-brand-500/30"
                                     />
                                     Call opt-in
                                 </label>
-                                <label className="flex items-center gap-2 text-red-600">
+                                <label className="flex items-center gap-2 text-red-600 dark:text-red-400">
                                     <input
                                         type="checkbox"
                                         checked={form.do_not_contact}
                                         onChange={(e) =>
                                             setForm({ ...form, do_not_contact: e.target.checked })
                                         }
+                                        className="rounded border-slate-300 dark:border-slate-600 bg-transparent dark:bg-slate-800 text-red-600 dark:text-red-400 focus:ring-red-500/30"
                                     />
                                     Do Not Contact
                                 </label>
@@ -344,12 +350,12 @@ export default function CompanyDetail() {
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                             <div>
-                                <p className="text-xs text-slate-500 mb-1">Subject</p>
-                                <p className="font-medium text-slate-800">{replyModal.subject || '—'}</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Subject</p>
+                                <p className="font-medium text-slate-800 dark:text-slate-100">{replyModal.subject || '—'}</p>
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 mb-1">Reply Received</p>
-                                <p className="font-medium text-slate-800">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Reply Received</p>
+                                <p className="font-medium text-slate-800 dark:text-slate-100">
                                     {replyModal.response_at
                                         ? new Date(replyModal.response_at).toLocaleString()
                                         : '—'}
@@ -358,8 +364,8 @@ export default function CompanyDetail() {
                         </div>
 
                         <div>
-                            <p className="text-xs text-slate-500 mb-1">Reply Body</p>
-                            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm whitespace-pre-wrap max-h-96 overflow-y-auto text-slate-800">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Reply Body</p>
+                            <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm whitespace-pre-wrap max-h-96 overflow-y-auto text-slate-800 dark:text-slate-200">
                                 {replyModal.response_body || '(No body)'}
                             </div>
                         </div>

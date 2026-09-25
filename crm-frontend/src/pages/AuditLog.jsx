@@ -31,8 +31,8 @@ export default function AuditLog() {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                    <h1 className="text-2xl font-semibold">Audit Log</h1>
-                    <p className="text-sm text-slate-500">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Audit Log</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         Every action across the CRM, who did it, and when
                     </p>
                 </div>
@@ -41,20 +41,20 @@ export default function AuditLog() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Card>
-                    <div className="text-xs text-slate-500">Total Actions</div>
-                    <div className="text-2xl font-semibold mt-1">{stats?.total ?? '—'}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Total Actions</div>
+                    <div className="text-2xl font-semibold mt-1 text-slate-900 dark:text-white">{stats?.total ?? '—'}</div>
                 </Card>
                 <Card>
-                    <div className="text-xs text-slate-500">Active Users</div>
-                    <div className="text-2xl font-semibold mt-1">{stats?.active_users ?? '—'}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Active Users</div>
+                    <div className="text-2xl font-semibold mt-1 text-slate-900 dark:text-white">{stats?.active_users ?? '—'}</div>
                 </Card>
                 <Card>
-                    <div className="text-xs text-slate-500">Last 24h</div>
-                    <div className="text-2xl font-semibold mt-1">{stats?.last_24h ?? '—'}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Last 24h</div>
+                    <div className="text-2xl font-semibold mt-1 text-slate-900 dark:text-white">{stats?.last_24h ?? '—'}</div>
                 </Card>
                 <Card>
-                    <div className="text-xs text-slate-500">Last 7 days</div>
-                    <div className="text-2xl font-semibold mt-1">{stats?.last_7d ?? '—'}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Last 7 days</div>
+                    <div className="text-2xl font-semibold mt-1 text-slate-900 dark:text-white">{stats?.last_7d ?? '—'}</div>
                 </Card>
             </div>
 
@@ -120,7 +120,7 @@ export default function AuditLog() {
 
                 <button
                     onClick={() => setFilters({ user_id: '', action: '', entity_type: '', from: '', to: '' })}
-                    className="mt-3 text-xs text-brand-600 hover:underline"
+                    className="mt-3 text-xs text-brand-600 dark:text-brand-400 hover:underline"
                 >
                     Clear filters
                 </button>
@@ -129,7 +129,7 @@ export default function AuditLog() {
             {/* Logs */}
             <Card>
                 {isLoading ? (
-                    <p className="text-sm text-slate-500">Loading…</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Loading…</p>
                 ) : (
                     <Table
                         data={logs}
@@ -141,8 +141,8 @@ export default function AuditLog() {
                                 label: 'Time',
                                 render: (r) => (
                                     <div className="text-xs">
-                                        <div>{new Date(r.created_at).toLocaleDateString()}</div>
-                                        <div className="text-slate-400">
+                                        <div className="text-slate-700 dark:text-slate-200">{new Date(r.created_at).toLocaleDateString()}</div>
+                                        <div className="text-slate-400 dark:text-slate-500">
                                             {new Date(r.created_at).toLocaleTimeString()}
                                         </div>
                                     </div>
@@ -153,9 +153,9 @@ export default function AuditLog() {
                                 label: 'User',
                                 render: (r) => (
                                     <div>
-                                        <div className="font-medium text-sm">{r.user_email || 'System'}</div>
+                                        <div className="font-medium text-sm text-slate-800 dark:text-slate-100">{r.user_email || 'System'}</div>
                                         {r.user_role && (
-                                            <div className="text-xs text-slate-400">{r.user_role}</div>
+                                            <div className="text-xs text-slate-400 dark:text-slate-500">{r.user_role}</div>
                                         )}
                                     </div>
                                 ),
@@ -169,16 +169,16 @@ export default function AuditLog() {
                                 key: 'entity_type',
                                 label: 'Entity',
                                 render: (r) => (
-                                    <span className="text-sm">
+                                    <span className="text-sm text-slate-700 dark:text-slate-200">
                                         {r.entity_type}
-                                        {r.entity_id ? <span className="text-slate-400"> #{r.entity_id}</span> : ''}
+                                        {r.entity_id ? <span className="text-slate-400 dark:text-slate-500"> #{r.entity_id}</span> : ''}
                                     </span>
                                 ),
                             },
                             {
                                 key: 'ip_address',
                                 label: 'IP',
-                                render: (r) => <span className="text-xs text-slate-500">{r.ip_address || '—'}</span>,
+                                render: (r) => <span className="text-xs text-slate-500 dark:text-slate-400">{r.ip_address || '—'}</span>,
                             },
                         ]}
                     />

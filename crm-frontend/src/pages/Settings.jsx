@@ -76,25 +76,25 @@ export default function Settings() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Settings</h1>
-                <p className="text-sm text-slate-500 mt-0.5">Manage integrations and workspace preferences</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Settings</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage integrations and workspace preferences</p>
             </div>
 
-            <Card title="Google Integration" action={<Link2 size={16} className="text-slate-400" />}>
+            <Card title="Google Integration" action={<Link2 size={16} className="text-slate-400 dark:text-slate-500" />}>
                 {loading ? (
-                    <p className="text-sm text-slate-500">Loading…</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Loading…</p>
                 ) : status.connected ? (
                     <div className="space-y-4">
-                        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-xl p-4">
-                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-soft">
+                        <div className="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-xl p-4">
+                            <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center shrink-0 shadow-soft">
                                 <span className="text-lg">✓</span>
                             </div>
                             <div>
                                 <Badge tone="Active">Connected</Badge>
-                                <p className="text-sm text-slate-700 mt-1">{status.email}</p>
+                                <p className="text-sm text-slate-700 dark:text-slate-200 mt-1">{status.email}</p>
                             </div>
                         </div>
-                        <p className="text-xs text-slate-500 leading-relaxed">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Google Calendar and Gmail API are connected to this account. Meetings will create real
                             calendar events and replies will be tracked automatically.
                         </p>
@@ -109,11 +109,11 @@ export default function Settings() {
                                 <LinkIcon size={20} className="text-white" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-800">Connect your Google account to unlock:</p>
-                                <ul className="text-sm text-slate-600 mt-2 space-y-1.5">
+                                <p className="text-sm font-medium text-slate-800 dark:text-slate-100">Connect your Google account to unlock:</p>
+                                <ul className="text-sm text-slate-600 dark:text-slate-400 mt-2 space-y-1.5">
                                     {benefits.map(({ icon: Icon, text }) => (
                                         <li key={text} className="flex items-center gap-2">
-                                            <Icon size={14} className="text-slate-400 shrink-0" />
+                                            <Icon size={14} className="text-slate-400 dark:text-slate-500 shrink-0" />
                                             {text}
                                         </li>
                                     ))}

@@ -1,5 +1,6 @@
 export default {
     content: ['./index.html', './src/**/*.{js,jsx}'],
+    darkMode: 'class',
     theme: {
         extend: {
             fontFamily: {
@@ -17,6 +18,9 @@ export default {
                 'lift': '0 4px 12px -2px rgb(15 23 42 / 0.08), 0 2px 6px -2px rgb(15 23 42 / 0.05)',
                 'pop': '0 12px 32px -8px rgb(15 23 42 / 0.18), 0 4px 12px -4px rgb(15 23 42 / 0.10)',
                 'glow': '0 0 0 1px rgb(79 70 229 / 0.10), 0 4px 16px -2px rgb(79 70 229 / 0.25)',
+                'soft-dark': '0 1px 2px 0 rgb(0 0 0 / 0.3), 0 1px 3px 0 rgb(0 0 0 / 0.25)',
+                'lift-dark': '0 4px 12px -2px rgb(0 0 0 / 0.4), 0 2px 6px -2px rgb(0 0 0 / 0.3)',
+                'pop-dark': '0 12px 32px -8px rgb(0 0 0 / 0.6), 0 4px 12px -4px rgb(0 0 0 / 0.4)',
             },
             keyframes: {
                 'fade-up': {
@@ -26,9 +30,6 @@ export default {
                 'scale-in': {
                     '0%': { opacity: '0', transform: 'scale(0.96)' },
                     '100%': { opacity: '1', transform: 'scale(1)' },
-                },
-                'shimmer': {
-                    '100%': { transform: 'translateX(100%)' },
                 },
             },
             animation: {

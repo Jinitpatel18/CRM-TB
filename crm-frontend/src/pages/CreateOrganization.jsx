@@ -60,19 +60,19 @@ export default function CreateOrganization() {
             {/* Back button */}
             <button
                 onClick={() => nav(-1)}
-                className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700"
+                className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition"
             >
                 <ArrowLeft size={14} /> Back
             </button>
 
             {/* Header */}
             <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center">
-                    <Building2 size={24} className="text-brand-600" />
+                <div className="w-12 h-12 rounded-xl bg-brand-100 dark:bg-brand-500/15 flex items-center justify-center">
+                    <Building2 size={24} className="text-brand-600 dark:text-brand-400" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Create Organization</h1>
-                    <p className="text-sm text-slate-500">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Create Organization</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         Organizations keep your CRM data separate. Each org has its own companies, contacts, and team.
                     </p>
                 </div>
@@ -112,11 +112,11 @@ export default function CreateOrganization() {
                         onChange={(e) => setForm({ ...form, industry: e.target.value })}
                     />
 
-                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs text-blue-800">
+                    <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-lg p-3 text-xs text-blue-800 dark:text-blue-300">
                         💡 <strong>You'll be the admin</strong> of this organization. You can invite team members after creation.
                     </div>
 
-                    <div className="flex justify-end gap-2 pt-2 border-t">
+                    <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                         <Button
                             type="button"
                             variant="secondary"

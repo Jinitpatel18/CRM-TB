@@ -89,8 +89,8 @@ export default function SendMessage() {
     return (
         <div className="space-y-4">
             <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Send Message</h1>
-                <p className="text-sm text-slate-500 mt-0.5">Reach a contact instantly or schedule for later</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Send Message</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Reach a contact instantly or schedule for later</p>
             </div>
 
             <Card>
@@ -146,12 +146,12 @@ export default function SendMessage() {
                     {/* Body with AI Improve button */}
                     <div>
                         <div className="flex items-center justify-between mb-1.5">
-                            <span className="block text-sm font-medium text-slate-700">Body</span>
+                            <span className="block text-sm font-medium text-slate-700 dark:text-slate-300">Body</span>
                             <button
                                 type="button"
                                 onClick={handleImprove}
                                 disabled={improve.isPending}
-                                className="text-xs inline-flex items-center gap-1 text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1 rounded-full font-medium disabled:opacity-50 transition"
+                                className="text-xs inline-flex items-center gap-1 text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 bg-brand-50 hover:bg-brand-100 dark:bg-brand-500/15 dark:hover:bg-brand-500/25 px-2.5 py-1 rounded-full font-medium disabled:opacity-50 transition"
                             >
                                 {improve.isPending ? (
                                     <>
@@ -168,8 +168,8 @@ export default function SendMessage() {
                             rows={8}
                             value={form.body}
                             onChange={(e) => setForm({ ...form, body: e.target.value })}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 shadow-soft
-                transition-all duration-150 hover:border-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-500/15 focus:border-brand-500"
+                            className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/70 px-3 py-2 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-soft dark:shadow-soft-dark
+                transition-all duration-150 hover:border-slate-400 dark:hover:border-slate-600 focus:outline-none focus:ring-4 focus:ring-brand-500/15 dark:focus:ring-brand-400/20 focus:border-brand-500 dark:focus:border-brand-400"
                             placeholder="Write your message... or use AI to improve it ✨"
                         />
                     </div>

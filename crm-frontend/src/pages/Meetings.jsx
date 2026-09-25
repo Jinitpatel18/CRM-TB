@@ -59,8 +59,6 @@ export default function Meetings() {
             meeting_link: form.meeting_link || undefined,
         };
 
-        console.log('📤 Sending payload:', payload);   // ← Debug
-
         try {
             await schedule.mutateAsync(payload);
             toast.success('Meeting scheduled');
@@ -78,8 +76,8 @@ export default function Meetings() {
     return (
         <div className="space-y-4">
             <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Schedule Meeting</h1>
-                <p className="text-sm text-slate-500 mt-0.5">Book time with contacts and check availability</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Schedule Meeting</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Book time with contacts and check availability</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -118,19 +116,20 @@ export default function Meetings() {
                     </Select>
                     <div className="mt-3 space-y-1 max-h-72 overflow-y-auto">
                         {contacts.length === 0 && (
-                            <p className="text-sm text-slate-400">Select a company to see contacts.</p>
+                            <p className="text-sm text-slate-400 dark:text-slate-500">Select a company to see contacts.</p>
                         )}
                         {contacts.map((c) => (
                             <label key={c.id}
                                 className={`flex items-center gap-2.5 p-2 rounded-lg border cursor-pointer text-sm transition ${attendees.includes(c.id)
-                                    ? 'border-brand-200 bg-brand-50/60'
-                                    : 'border-transparent hover:bg-slate-50 hover:border-slate-100'}`}>
+                                    ? 'border-brand-200 bg-brand-50/60 dark:border-brand-500/40 dark:bg-brand-500/10'
+                                    : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-slate-100 dark:hover:border-slate-700'
+                                    }`}>
                                 <input type="checkbox" checked={attendees.includes(c.id)}
                                     onChange={() => toggle(c.id)}
-                                    className="rounded border-slate-300 text-brand-600 focus:ring-brand-500/30" />
+                                    className="rounded border-slate-300 dark:border-slate-600 bg-transparent dark:bg-slate-800 text-brand-600 dark:text-brand-400 focus:ring-brand-500/30" />
                                 <div className="min-w-0">
-                                    <div className="font-medium text-slate-800 truncate">{c.name}</div>
-                                    <div className="text-xs text-slate-500 truncate">{c.email}</div>
+                                    <div className="font-medium text-slate-800 dark:text-slate-100 truncate">{c.name}</div>
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 truncate">{c.email}</div>
                                 </div>
                             </label>
                         ))}

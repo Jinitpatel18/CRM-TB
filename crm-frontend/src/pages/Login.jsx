@@ -4,6 +4,7 @@ import { BarChart3, Calendar, Mail, Zap } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Button from '../components/Button';
 import Input from '../components/Input';
+import ThemeToggle from '../components/ThemeToggle';
 import { useAuth } from '../lib/AuthContext';
 
 const features = [
@@ -47,9 +48,9 @@ export default function Login() {
 
     return (
         <div className="min-h-screen auth-bg flex items-center justify-center p-4 sm:p-6">
-            <div className="w-full max-w-4xl bg-white rounded-2xl shadow-pop border border-white/60 overflow-hidden grid lg:grid-cols-2 animate-fade-up">
+            <div className="w-full max-w-4xl bg-white dark:bg-slate-900 rounded-2xl shadow-pop dark:shadow-pop-dark border border-white/60 dark:border-slate-800 overflow-hidden grid lg:grid-cols-2 animate-fade-up">
                 {/* Left: brand panel */}
-                <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-brand-600 via-brand-700 to-purple-700 p-10 relative overflow-hidden">
+                <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-brand-600 via-brand-700 to-purple-700 dark:from-brand-800 dark:via-brand-900 dark:to-purple-950 p-10 relative overflow-hidden">
                     <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-white/10 blur-2xl" />
                     <div className="absolute -bottom-32 -left-16 w-80 h-80 rounded-full bg-purple-400/20 blur-3xl" />
 
@@ -79,13 +80,18 @@ export default function Login() {
                 </div>
 
                 {/* Right: form */}
-                <div className="p-8 sm:p-10">
-                    <div className="lg:hidden flex justify-center mb-6">
-                        <img src="./logo.svg" alt="CRM" className="h-9" />
+                <div className="p-8 sm:p-10 relative">
+                    <div className="absolute top-4 right-4">
+                        <ThemeToggle />
                     </div>
 
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Welcome back</h1>
-                    <p className="text-sm text-slate-500 mt-1.5 mb-7">
+                    <div className="lg:hidden flex justify-center mb-6">
+                        <img src="./logo.svg" alt="CRM" className="h-9 dark:hidden" />
+                        <img src="./logo-white.svg" alt="CRM" className="h-9 hidden dark:block" />
+                    </div>
+
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Welcome back</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 mb-7">
                         Sign in to continue to your workspace
                     </p>
 
@@ -113,9 +119,9 @@ export default function Login() {
                         </Button>
                     </form>
 
-                    <p className="text-center text-sm text-slate-500 mt-7">
+                    <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-7">
                         Don't have an account?{' '}
-                        <Link to="/signup" className="font-medium text-brand-600 hover:text-brand-700 hover:underline">
+                        <Link to="/signup" className="font-medium text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 hover:underline">
                             Sign Up
                         </Link>
                     </p>

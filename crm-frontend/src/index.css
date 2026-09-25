@@ -6,11 +6,13 @@
 
 html, body, #root { height: 100%; }
 body {
-    @apply bg-slate-100 text-slate-800 antialiased;
+    @apply bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200 dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgb(79_70_229/0.10),transparent)];
     font-feature-settings: 'cv11', 'ss01';
     font-variation-settings: 'opsz' 32;
     text-rendering: optimizeLegibility;
+    color-scheme: light;
 }
+html.dark body { color-scheme: dark; }
 
 /* Subtle selection tint */
 ::selection { background: rgb(99 102 241 / 0.18); }
@@ -33,11 +35,17 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     background-clip: content-box;
 }
 *::-webkit-scrollbar-thumb:hover { background: rgb(100 116 139 / 0.6); background-clip: content-box; }
+html.dark * { scrollbar-color: rgb(71 85 105 / 0.6) transparent; }
+html.dark *::-webkit-scrollbar-thumb { background: rgb(71 85 105 / 0.55); background-clip: content-box; }
+html.dark *::-webkit-scrollbar-thumb:hover { background: rgb(100 116 139 / 0.7); background-clip: content-box; }
 
 /* Number inputs: hide spinners for cleaner look */
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input[type='number'] { -moz-appearance: textfield; }
+
+/* Native form controls adapt to theme */
+input, select, textarea { color-scheme: inherit; }
 
 /* Prevent iOS auto-zoom on input focus (16px on small screens) */
 @media (max-width: 640px) {
@@ -60,12 +68,20 @@ input[type='number'] { -moz-appearance: textfield; }
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 }
+html.dark .glass {
+    background: rgb(15 23 42 / 0.8);
+}
 
 /* Decorative page background */
 .page-bg {
     background-image:
         radial-gradient(ellipse 60% 50% at 100% 0%, rgb(99 102 241 / 0.06), transparent),
         radial-gradient(ellipse 60% 50% at 0% 100%, rgb(139 92 246 / 0.05), transparent);
+}
+html.dark .page-bg {
+    background-image:
+        radial-gradient(ellipse 60% 50% at 100% 0%, rgb(99 102 241 / 0.08), transparent),
+        radial-gradient(ellipse 60% 50% at 0% 100%, rgb(139 92 246 / 0.06), transparent);
 }
 
 /* Auth screen decorative background */
@@ -74,6 +90,12 @@ input[type='number'] { -moz-appearance: textfield; }
         radial-gradient(ellipse 80% 60% at 70% 10%, rgb(99 102 241 / 0.14), transparent),
         radial-gradient(ellipse 60% 50% at 15% 85%, rgb(139 92 246 / 0.12), transparent),
         linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+}
+html.dark .auth-bg {
+    background:
+        radial-gradient(ellipse 80% 60% at 70% 10%, rgb(99 102 241 / 0.18), transparent),
+        radial-gradient(ellipse 60% 50% at 15% 85%, rgb(139 92 246 / 0.14), transparent),
+        linear-gradient(180deg, #020617 0%, #0f172a 100%);
 }
 
 /* Drawer + modal entrance animations */
@@ -110,4 +132,7 @@ input[type='number'] { -moz-appearance: textfield; }
     .animate-fade-in,
     .animate-overlay-in,
     .animate-pop-in { animation: none; }
+
+    /* Smooth theme transitions off */
+    * { transition: none !important; }
 }

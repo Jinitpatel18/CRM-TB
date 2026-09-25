@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Crown, Briefcase, Eye, UserX, UserCheck, UserPlus, Trash2, Mail } from 'lucide-react';
+import { Crown, Briefcase, Eye, UserX, UserPlus, Trash2, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Card from '../components/Card';
@@ -12,9 +12,9 @@ import { useAuth } from '../lib/AuthContext';
 import { useOrg } from '../lib/OrgContext';
 
 const roleConfig = {
-    admin: { label: 'Admin', icon: Crown, badge: 'bg-purple-100 text-purple-700', avatar: 'bg-purple-500' },
-    sales: { label: 'Sales', icon: Briefcase, badge: 'bg-blue-100 text-blue-700', avatar: 'bg-blue-500' },
-    viewer: { label: 'Viewer', icon: Eye, badge: 'bg-slate-100 text-slate-600', avatar: 'bg-slate-500' },
+    admin: { label: 'Admin', icon: Crown, badge: 'bg-purple-100 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300', avatar: 'bg-purple-500' },
+    sales: { label: 'Sales', icon: Briefcase, badge: 'bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300', avatar: 'bg-blue-500' },
+    viewer: { label: 'Viewer', icon: Eye, badge: 'bg-slate-100 text-slate-600 dark:bg-slate-500/15 dark:text-slate-300', avatar: 'bg-slate-500' },
 };
 
 const getInitials = (email) => {
@@ -92,13 +92,13 @@ function RoleModal({ user, open, onClose, onChange, currentUserId }) {
         <Modal open={open} onClose={onClose} title="Change Role">
             {user && (
                 <div className="space-y-5">
-                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${roleConfig[user.role]?.avatar || 'bg-slate-500'}`}>
                             {getInitials(user.email)}
                         </div>
                         <div>
-                            <div className="font-medium text-slate-800">{user.email}</div>
-                            <div className="text-xs text-slate-500">Currently: {roleConfig[user.role]?.label}</div>
+                            <div className="font-medium text-sm text-slate-800 dark:text-slate-100">{user.email}</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">Currently: {roleConfig[user.role]?.label}</div>
                         </div>
                     </div>
 
@@ -112,13 +112,15 @@ function RoleModal({ user, open, onClose, onChange, currentUserId }) {
                                     type="button"
                                     onClick={() => setSelected(opt.value)}
                                     disabled={user.user_id === currentUserId}
-                                    className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition ${isSelected ? 'border-brand-500 bg-brand-50 ring-1 ring-brand-500' : 'border-slate-200 hover:bg-slate-50'
+                                    className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition ${isSelected
+                                        ? 'border-brand-500 bg-brand-50 ring-1 ring-brand-500 dark:border-brand-400 dark:bg-brand-500/10 dark:ring-brand-400'
+                                        : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                                         }`}
                                 >
-                                    <Icon size={18} className={isSelected ? 'text-brand-600 mt-0.5' : 'text-slate-400 mt-0.5'} />
+                                    <Icon size={18} className={isSelected ? 'text-brand-600 dark:text-brand-400 mt-0.5' : 'text-slate-400 mt-0.5'} />
                                     <div className="flex-1">
-                                        <div className="font-medium text-sm text-slate-800">{opt.label}</div>
-                                        <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
+                                        <div className="font-medium text-sm text-slate-800 dark:text-slate-100">{opt.label}</div>
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{opt.desc}</div>
                                     </div>
                                     {isSelected && (
                                         <div className="w-4 h-4 rounded-full bg-brand-500 flex items-center justify-center">
@@ -130,7 +132,7 @@ function RoleModal({ user, open, onClose, onChange, currentUserId }) {
                         })}
                     </div>
 
-                    <div className="flex justify-end gap-2 pt-2 border-t">
+                    <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                         <Button variant="secondary" onClick={onClose}>Cancel</Button>
                         <Button
                             onClick={() => {
@@ -199,8 +201,8 @@ export default function Team() {
             {/* Header */}
             <div className="flex items-start justify-between flex-wrap gap-3">
                 <div>
-                    <h1 className="text-2xl font-semibold">Team</h1>
-                    <p className="text-sm text-slate-500">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Team</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         {activeOrg?.name} · {stats.total} members
                     </p>
                 </div>
@@ -212,43 +214,43 @@ export default function Team() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Card>
-                    <div className="text-xs text-slate-500">Total Members</div>
-                    <div className="text-2xl font-semibold mt-1">{stats.total}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Total Members</div>
+                    <div className="text-2xl font-semibold mt-1 text-slate-900 dark:text-white">{stats.total}</div>
                 </Card>
                 <Card>
-                    <div className="text-xs text-purple-600">Admins</div>
-                    <div className="text-2xl font-semibold mt-1 text-purple-700">{stats.admins}</div>
+                    <div className="text-xs text-purple-600 dark:text-purple-400">Admins</div>
+                    <div className="text-2xl font-semibold mt-1 text-purple-700 dark:text-purple-300">{stats.admins}</div>
                 </Card>
                 <Card>
-                    <div className="text-xs text-blue-600">Sales</div>
-                    <div className="text-2xl font-semibold mt-1 text-blue-700">{stats.sales}</div>
+                    <div className="text-xs text-blue-600 dark:text-blue-400">Sales</div>
+                    <div className="text-2xl font-semibold mt-1 text-blue-700 dark:text-blue-300">{stats.sales}</div>
                 </Card>
                 <Card>
-                    <div className="text-xs text-slate-500">Viewers</div>
-                    <div className="text-2xl font-semibold mt-1">{stats.viewers}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Viewers</div>
+                    <div className="text-2xl font-semibold mt-1 text-slate-900 dark:text-white">{stats.viewers}</div>
                 </Card>
             </div>
 
             {/* Members */}
             <Card title="Members">
                 {membersLoading ? (
-                    <p className="text-sm text-slate-500">Loading…</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Loading…</p>
                 ) : (
-                    <div className="divide-y divide-slate-100 -mx-5 -mb-5">
+                    <div className="divide-y divide-slate-100 dark:divide-slate-800 -mx-5 -mb-5">
                         {members.map((m) => {
                             const cfg = roleConfig[m.role] || roleConfig.viewer;
                             const isMe = m.user_id === user?.id;
                             return (
-                                <div key={m.member_id} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50/60 transition">
+                                <div key={m.member_id} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 ${cfg.avatar}`}>
                                         {getInitials(m.email)}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-medium text-sm text-slate-800 truncate">{m.email}</span>
-                                            {isMe && <span className="text-[10px] uppercase tracking-wide font-medium bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">You</span>}
+                                            <span className="font-medium text-sm text-slate-800 dark:text-slate-100 truncate">{m.email}</span>
+                                            {isMe && <span className="text-[10px] uppercase tracking-wide font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded">You</span>}
                                         </div>
-                                        <div className="text-xs text-slate-500 mt-0.5">
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                                             {m.full_name || 'No name'}
                                         </div>
                                     </div>
@@ -260,7 +262,7 @@ export default function Team() {
                                         ) : (
                                             <button
                                                 onClick={() => setRoleModal(m)}
-                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition hover:ring-2 hover:ring-brand-200 ${cfg.badge}`}
+                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition hover:ring-2 hover:ring-brand-200 dark:hover:ring-brand-500/40 ${cfg.badge}`}
                                             >
                                                 <cfg.icon size={12} /> {cfg.label} ▾
                                             </button>
@@ -270,7 +272,7 @@ export default function Team() {
                                         {!isMe && (
                                             <button
                                                 onClick={() => handleRemove(m)}
-                                                className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded text-red-600 hover:bg-red-50"
+                                                className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
                                             >
                                                 <UserX size={12} /> Remove
                                             </button>
@@ -286,26 +288,26 @@ export default function Team() {
             {/* Invitations */}
             <Card title={`Pending Invitations (${invitations.length})`}>
                 {invitesLoading ? (
-                    <p className="text-sm text-slate-500">Loading…</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Loading…</p>
                 ) : invitations.length === 0 ? (
-                    <p className="text-sm text-slate-400">No pending invitations.</p>
+                    <p className="text-sm text-slate-400 dark:text-slate-500">No pending invitations.</p>
                 ) : (
-                    <div className="divide-y divide-slate-100 -mx-5 -mb-5">
+                    <div className="divide-y divide-slate-100 dark:divide-slate-800 -mx-5 -mb-5">
                         {invitations.map((inv) => {
                             const cfg = roleConfig[inv.role] || roleConfig.viewer;
                             const expired = new Date(inv.expires_at) < new Date();
                             return (
                                 <div key={inv.id} className="flex items-center gap-4 px-5 py-3">
-                                    <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                        <Mail size={14} className="text-slate-500" />
+                                    <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                                        <Mail size={14} className="text-slate-500 dark:text-slate-400" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-sm font-medium text-slate-800 truncate">{inv.email}</div>
-                                        <div className="text-xs text-slate-500">
+                                        <div className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">{inv.email}</div>
+                                        <div className="text-xs text-slate-500 dark:text-slate-400">
                                             {inv.accepted_at ? (
-                                                <span className="text-green-600">Accepted</span>
+                                                <span className="text-green-600 dark:text-green-400">Accepted</span>
                                             ) : expired ? (
-                                                <span className="text-red-500">Expired</span>
+                                                <span className="text-red-500 dark:text-red-400">Expired</span>
                                             ) : (
                                                 <span>Expires {new Date(inv.expires_at).toLocaleDateString()}</span>
                                             )}
@@ -318,7 +320,7 @@ export default function Team() {
                                         <>
                                             <button
                                                 onClick={() => copyInviteLink(inv.token)}
-                                                className="text-xs text-brand-600 hover:underline"
+                                                className="text-xs text-brand-600 dark:text-brand-400 hover:underline"
                                             >
                                                 Copy link
                                             </button>
@@ -326,7 +328,7 @@ export default function Team() {
                                                 onClick={() => {
                                                     if (confirm('Revoke this invitation?')) revokeInvite.mutate(inv.id);
                                                 }}
-                                                className="p-1.5 rounded text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                                className="p-1.5 rounded text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
                                             >
                                                 <Trash2 size={14} />
                                             </button>

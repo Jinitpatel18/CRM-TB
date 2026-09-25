@@ -48,14 +48,14 @@ export default function AIGenerateModal({ open, onClose, onGenerated }) {
                 />
 
                 <div>
-                    <p className="text-xs text-slate-500 mb-2">Quick prompts:</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Quick prompts:</p>
                     <div className="flex flex-wrap gap-2">
                         {PRESETS.map((p) => (
                             <button
                                 key={p}
                                 type="button"
                                 onClick={() => setPrompt(p)}
-                                className="text-xs px-2.5 py-1 rounded-full bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-600 transition"
+                                className="text-xs px-2.5 py-1 rounded-full bg-slate-100 hover:bg-brand-50 hover:text-brand-700 dark:bg-slate-800 dark:hover:bg-brand-500/15 dark:hover:text-brand-300 text-slate-600 dark:text-slate-300 transition"
                             >
                                 {p.slice(0, 45)}…
                             </button>
@@ -78,12 +78,12 @@ export default function AIGenerateModal({ open, onClose, onGenerated }) {
                     </Select>
                 </div>
 
-                <div className="bg-brand-50 border border-brand-100 rounded-lg p-3 text-xs text-brand-800">
+                <div className="bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 rounded-lg p-3 text-xs text-brand-800 dark:text-brand-300">
                     💡 <strong>Tip:</strong> AI automatically uses {'{{ContactName}}'}, {'{{CompanyName}}'}, and other
                     variables so your template works with any contact.
                 </div>
 
-                <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <Button variant="secondary" onClick={onClose}>
                         Cancel
                     </Button>

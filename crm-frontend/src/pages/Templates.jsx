@@ -42,8 +42,8 @@ export default function Templates() {
         <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Create Template</h1>
-                    <p className="text-sm text-slate-500 mt-0.5">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Create Template</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                         Write manually or let AI generate for you
                     </p>
                 </div>
@@ -99,22 +99,22 @@ export default function Templates() {
                 </Card>
 
                 <Card title="Variables">
-                    <p className="text-xs text-slate-500 mb-2">Click to insert into body.</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Click to insert into body.</p>
                     <div className="flex flex-wrap gap-2">
                         {DEMO_VARS.map((v) => (
                             <button
                                 key={v}
                                 type="button"
                                 onClick={() => insertVar(v)}
-                                className="text-xs px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded font-mono"
+                                className="text-xs px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 rounded font-mono transition"
                             >
                                 {`{{${v}}}`}
                             </button>
                         ))}
                     </div>
-                    <div className="mt-4 text-xs text-slate-500">
+                    <div className="mt-4 text-xs text-slate-500 dark:text-slate-400">
                         <p className="font-semibold mb-1">Preview:</p>
-                        <pre className="whitespace-pre-wrap bg-slate-50 border border-slate-100 p-2.5 rounded-lg text-[11px] leading-relaxed">
+                        <pre className="whitespace-pre-wrap bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 p-2.5 rounded-lg text-[11px] leading-relaxed">
                             {form.body}
                         </pre>
                     </div>

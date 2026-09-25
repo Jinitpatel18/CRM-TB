@@ -11,6 +11,16 @@
     <meta name="theme-color" content="#4f46e5" />
     <meta name="description" content="Modern CRM for B2B sales teams — AI-powered, multi-channel, and built for growth." />
     <title>CRM · Modern Sales Platform</title>
+    <script>
+      // Apply saved theme before paint to avoid flash of wrong theme (FOUC)
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var dark = stored === 'dark' || (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
