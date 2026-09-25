@@ -22,23 +22,23 @@ export default function OrgSwitcher() {
         <div className="relative" ref={ref}>
             <button
                 onClick={() => setOpen(!open)}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 transition text-left"
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-slate-100 transition text-left"
             >
-                <div className="w-7 h-7 rounded-lg bg-brand-100 flex items-center justify-center shrink-0">
-                    <Building2 size={14} className="text-brand-700" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-purple-500 flex items-center justify-center shrink-0 shadow-soft">
+                    <Building2 size={15} className="text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <div className="text-xs text-slate-400">Organization</div>
-                    <div className="text-sm font-medium text-slate-800 truncate">
+                    <div className="text-[10px] uppercase font-semibold tracking-wider text-slate-400">Organization</div>
+                    <div className="text-sm font-semibold text-slate-800 truncate leading-tight">
                         {activeOrg.name}
                     </div>
                 </div>
-                <ChevronDown size={14} className="text-slate-400 shrink-0" />
+                <ChevronDown size={14} className={`text-slate-400 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
             </button>
 
             {open && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-40 max-h-64 overflow-y-auto">
-                    <div className="px-3 py-1.5 text-xs font-medium text-slate-400 uppercase tracking-wide">
+                <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-pop py-1 z-40 max-h-64 overflow-y-auto animate-scale-in origin-top">
+                    <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                         Your Organizations
                     </div>
                     {organizations.map((org) => (
@@ -50,13 +50,13 @@ export default function OrgSwitcher() {
                                 }
                                 setOpen(false);
                             }}
-                            className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition ${String(org.id) === String(activeOrg.id)
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition ${String(org.id) === String(activeOrg.id)
                                     ? 'bg-brand-50 text-brand-700'
                                     : 'hover:bg-slate-50 text-slate-700'
                                 }`}
                         >
                             <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${String(org.id) === String(activeOrg.id)
-                                    ? 'bg-brand-600 text-white'
+                                    ? 'bg-brand-600 text-white shadow-soft'
                                     : 'bg-slate-100 text-slate-500'
                                 }`}>
                                 <Building2 size={12} />
@@ -73,11 +73,11 @@ export default function OrgSwitcher() {
                         </button>
                     ))}
 
-                    <div className="border-t border-slate-100 mt-1 pt-1">
+                    <div className="border-t border-slate-100 mt-1 pt-1 pb-0.5">
                         <Link
                             to="/organizations/new"
                             onClick={() => setOpen(false)}
-                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-brand-600 hover:bg-brand-50 transition"
+                            className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50 transition rounded-b-xl"
                         >
                             <Plus size={14} />
                             Create new organization

@@ -27,8 +27,10 @@ const adminItems = [
 
 const linkClass = ({ isActive }) =>
     clsx(
-        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium',
-        isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100'
+        'group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 relative',
+        isActive
+            ? 'bg-brand-50 text-brand-700'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
     );
 
 export default function Sidebar({ onNavigate, className }) {
@@ -40,8 +42,9 @@ export default function Sidebar({ onNavigate, className }) {
     };
 
     return (
-        <aside className={clsx('w-60 shrink-0 bg-white border-r border-slate-200 flex flex-col h-full', className)}>
-            <div className="h-14 flex items-center px-5 border-b border-slate-100">
+        <aside className={clsx('w-60 shrink-0 bg-white border-r border-slate-200/80 flex flex-col h-full', className)}>
+            {/* Logo */}
+            <div className="h-16 flex items-center px-5 border-b border-slate-100">
                 <img src="./logo.svg" alt="CRM" className="h-8" />
             </div>
 
@@ -49,7 +52,7 @@ export default function Sidebar({ onNavigate, className }) {
                 <OrgSwitcher />
             </div>
 
-            <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+            <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
                 {baseItems.map(({ to, label, icon: Icon, end }) => (
                     <NavLink
                         key={to}
@@ -58,14 +61,18 @@ export default function Sidebar({ onNavigate, className }) {
                         onClick={onNavigate}
                         className={linkClass}
                     >
-                        <Icon size={18} /> {label}
+                        <Icon size={18} className={clsx(
+                            'shrink-0 transition-colors',
+                            'group-hover:scale-105'
+                        )} />
+                        {label}
                     </NavLink>
                 ))}
 
                 {/* Admin only section */}
                 {isAdmin && (
                     <>
-                        <div className="pt-3 pb-1 px-3 text-xs uppercase tracking-wide text-slate-400">
+                        <div className="pt-4 pb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                             Admin
                         </div>
                         {adminItems.map(({ to, label, icon: Icon }) => (
@@ -75,39 +82,41 @@ export default function Sidebar({ onNavigate, className }) {
                                 onClick={onNavigate}
                                 className={linkClass}
                             >
-                                <Icon size={18} /> {label}
+                                <Icon size={18} className="shrink-0" />
+                                {label}
                             </NavLink>
                         ))}
                     </>
                 )}
 
-                <div className="pt-3 pb-1 px-3 text-xs uppercase tracking-wide text-slate-400">
+                <div className="pt-4 pb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                     Account
                 </div>
                 <NavLink to="/settings" onClick={onNavigate} className={linkClass}>
-                    <SettingsIcon size={18} /> Settings
+                    <SettingsIcon size={18} className="shrink-0" /> Settings
                 </NavLink>
             </nav>
 
-            <div className="p-3 border-t border-slate-100 space-y-2 safe-bottom shrink-0">
-                <div className="flex items-center gap-2 px-3 py-2">
-                    <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
-                        <User size={14} className="text-brand-700" />
+            {/* User footer */}
+            <div className="p-3 border-t border-slate-100 space-y-1.5 safe-bottom shrink-0">
+                <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-slate-50 transition">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-purple-500 flex items-center justify-center shrink-0 shadow-soft">
+                        <User size={15} className="text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-xs text-slate-500 truncate capitalize">
+                        <p className="text-[11px] uppercase tracking-wide text-slate-400 font-semibold capitalize">
                             {profile?.role || 'User'}
                         </p>
-                        <p className="text-sm font-medium truncate" title={user?.email}>
+                        <p className="text-sm font-medium text-slate-700 truncate" title={user?.email}>
                             {user?.email}
                         </p>
                     </div>
                 </div>
                 <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50"
+                    className="flex w-full items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition"
                 >
-                    <LogOut size={18} /> Sign Out
+                    <LogOut size={16} /> Sign Out
                 </button>
             </div>
         </aside>

@@ -88,7 +88,10 @@ export default function SendMessage() {
 
     return (
         <div className="space-y-4">
-            <h1 className="text-2xl font-semibold">Send Message</h1>
+            <div>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Send Message</h1>
+                <p className="text-sm text-slate-500 mt-0.5">Reach a contact instantly or schedule for later</p>
+            </div>
 
             <Card>
                 <form onSubmit={submit} className="space-y-4">
@@ -134,6 +137,7 @@ export default function SendMessage() {
                     {form.activity_type === 'Email' && (
                         <Input
                             label="Subject"
+                            placeholder="Your subject line…"
                             value={form.subject}
                             onChange={(e) => setForm({ ...form, subject: e.target.value })}
                         />
@@ -141,13 +145,13 @@ export default function SendMessage() {
 
                     {/* Body with AI Improve button */}
                     <div>
-                        <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center justify-between mb-1.5">
                             <span className="block text-sm font-medium text-slate-700">Body</span>
                             <button
                                 type="button"
                                 onClick={handleImprove}
                                 disabled={improve.isPending}
-                                className="text-xs inline-flex items-center gap-1 text-brand-600 hover:text-brand-700 font-medium disabled:opacity-50 transition"
+                                className="text-xs inline-flex items-center gap-1 text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1 rounded-full font-medium disabled:opacity-50 transition"
                             >
                                 {improve.isPending ? (
                                     <>
@@ -164,8 +168,8 @@ export default function SendMessage() {
                             rows={8}
                             value={form.body}
                             onChange={(e) => setForm({ ...form, body: e.target.value })}
-                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm
-                focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 shadow-soft
+                transition-all duration-150 hover:border-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-500/15 focus:border-brand-500"
                             placeholder="Write your message... or use AI to improve it ✨"
                         />
                     </div>
@@ -180,7 +184,7 @@ export default function SendMessage() {
                         onChange={(e) => setForm({ ...form, scheduled_for: e.target.value })}
                     />
 
-                    <div className="flex justify-end">
+                    <div className="flex justify-end pt-1">
                         <Button
                             type="submit"
                             disabled={!companyId || !contactId || send.isPending}

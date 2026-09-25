@@ -1,9 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html, body, #root { height: 100%; }
-body { @apply bg-slate-50 text-slate-800 antialiased; }
+body {
+    @apply bg-slate-100 text-slate-800 antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    font-variation-settings: 'opsz' 32;
+    text-rendering: optimizeLegibility;
+}
+
+/* Subtle selection tint */
+::selection { background: rgb(99 102 241 / 0.18); }
+
+/* Focus visibility for keyboard users */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid rgb(99 102 241 / 0.5);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+/* Elegant thin scrollbars */
+* { scrollbar-width: thin; scrollbar-color: rgb(148 163 184 / 0.5) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+    background: rgb(148 163 184 / 0.4);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: rgb(100 116 139 / 0.6); background-clip: content-box; }
+
+/* Number inputs: hide spinners for cleaner look */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type='number'] { -moz-appearance: textfield; }
 
 /* Prevent iOS auto-zoom on input focus (16px on small screens) */
 @media (max-width: 640px) {
@@ -19,6 +53,28 @@ body { @apply bg-slate-50 text-slate-800 antialiased; }
 /* Safe-area padding helpers (notched iPhones) */
 .safe-bottom { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
 .safe-top { padding-top: max(0rem, env(safe-area-inset-top)); }
+
+/* Glassy topbar helper */
+.glass {
+    background: rgb(255 255 255 / 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Decorative page background */
+.page-bg {
+    background-image:
+        radial-gradient(ellipse 60% 50% at 100% 0%, rgb(99 102 241 / 0.06), transparent),
+        radial-gradient(ellipse 60% 50% at 0% 100%, rgb(139 92 246 / 0.05), transparent);
+}
+
+/* Auth screen decorative background */
+.auth-bg {
+    background:
+        radial-gradient(ellipse 80% 60% at 70% 10%, rgb(99 102 241 / 0.14), transparent),
+        radial-gradient(ellipse 60% 50% at 15% 85%, rgb(139 92 246 / 0.12), transparent),
+        linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+}
 
 /* Drawer + modal entrance animations */
 @keyframes slide-in-left {
@@ -37,15 +93,21 @@ body { @apply bg-slate-50 text-slate-800 antialiased; }
     from { opacity: 0; }
     to { opacity: 1; }
 }
+@keyframes pop-in {
+    0% { opacity: 0; transform: scale(0.97) translateY(6px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
 
 .animate-slide-in-left { animation: slide-in-left 0.25s ease-out both; }
 .animate-slide-up { animation: slide-up 0.3s cubic-bezier(0.32, 0.72, 0, 1) both; }
 .animate-fade-in { animation: fade-in 0.2s ease-out both; }
 .animate-overlay-in { animation: overlay-in 0.2s ease-out both; }
+.animate-pop-in { animation: pop-in 0.2s cubic-bezier(0.32, 0.72, 0, 1) both; }
 
 @media (prefers-reduced-motion: reduce) {
     .animate-slide-in-left,
     .animate-slide-up,
     .animate-fade-in,
-    .animate-overlay-in { animation: none; }
+    .animate-overlay-in,
+    .animate-pop-in { animation: none; }
 }

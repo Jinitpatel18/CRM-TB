@@ -77,7 +77,10 @@ export default function Meetings() {
 
     return (
         <div className="space-y-4">
-            <h1 className="text-2xl font-semibold">Schedule Meeting</h1>
+            <div>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Schedule Meeting</h1>
+                <p className="text-sm text-slate-500 mt-0.5">Book time with contacts and check availability</p>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <Card title="Meeting" className="lg:col-span-2">
@@ -114,14 +117,20 @@ export default function Meetings() {
                         {companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </Select>
                     <div className="mt-3 space-y-1 max-h-72 overflow-y-auto">
+                        {contacts.length === 0 && (
+                            <p className="text-sm text-slate-400">Select a company to see contacts.</p>
+                        )}
                         {contacts.map((c) => (
                             <label key={c.id}
-                                className="flex items-center gap-2 p-2 rounded hover:bg-slate-50 cursor-pointer text-sm">
+                                className={`flex items-center gap-2.5 p-2 rounded-lg border cursor-pointer text-sm transition ${attendees.includes(c.id)
+                                    ? 'border-brand-200 bg-brand-50/60'
+                                    : 'border-transparent hover:bg-slate-50 hover:border-slate-100'}`}>
                                 <input type="checkbox" checked={attendees.includes(c.id)}
-                                    onChange={() => toggle(c.id)} />
-                                <div>
-                                    <div>{c.name}</div>
-                                    <div className="text-xs text-slate-500">{c.email}</div>
+                                    onChange={() => toggle(c.id)}
+                                    className="rounded border-slate-300 text-brand-600 focus:ring-brand-500/30" />
+                                <div className="min-w-0">
+                                    <div className="font-medium text-slate-800 truncate">{c.name}</div>
+                                    <div className="text-xs text-slate-500 truncate">{c.email}</div>
                                 </div>
                             </label>
                         ))}

@@ -42,8 +42,8 @@ export default function Templates() {
         <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-semibold">Create Template</h1>
-                    <p className="text-sm text-slate-500">
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Create Template</h1>
+                    <p className="text-sm text-slate-500 mt-0.5">
                         Write manually or let AI generate for you
                     </p>
                 </div>
@@ -114,7 +114,7 @@ export default function Templates() {
                     </div>
                     <div className="mt-4 text-xs text-slate-500">
                         <p className="font-semibold mb-1">Preview:</p>
-                        <pre className="whitespace-pre-wrap bg-slate-50 p-2 rounded text-[11px]">
+                        <pre className="whitespace-pre-wrap bg-slate-50 border border-slate-100 p-2.5 rounded-lg text-[11px] leading-relaxed">
                             {form.body}
                         </pre>
                     </div>

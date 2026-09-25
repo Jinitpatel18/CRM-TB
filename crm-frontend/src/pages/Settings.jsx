@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link2, Calendar, Mail, Video, Inbox, Link as LinkIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
 import { api } from '../lib/api';
 
+const benefits = [
+    { icon: Calendar, text: 'Meetings create real Google Calendar events' },
+    { icon: Mail, text: 'Attendees receive email invites automatically' },
+    { icon: Video, text: 'Google Meet links are auto-generated' },
+    { icon: Inbox, text: 'Customer replies are tracked automatically' },
+];
+
 export default function Settings() {
-    const [searchParams, setSearchParams] = useSearchParams();
     const [status, setStatus] = useState({ connected: false, email: null });
     const [loading, setLoading] = useState(true);
 
@@ -25,22 +31,21 @@ export default function Settings() {
     useEffect(() => {
         loadStatus();
 
-        // Handle OAuth callback params
-        const google = searchParams.get('google');
-        const email = searchParams.get('email');
-        const reason = searchParams.get('reason');
+        // Handle OAuth callback params (hash-free sync)
+        const params = new URLSearchParams(
+            window.location.hash.includes('?')
+                ? window.location.hash.split('?')[1]
+                : window.location.search
+        );
+        const google = params.get('google');
+        const email = params.get('email');
+        const reason = params.get('reason');
 
         if (google === 'connected') {
             toast.success(`Connected as ${email} ✅`);
-            searchParams.delete('google');
-            searchParams.delete('email');
-            setSearchParams(searchParams, { replace: true });
             loadStatus();
         } else if (google === 'error') {
             toast.error(`Connection failed: ${reason || 'unknown'}`);
-            searchParams.delete('google');
-            searchParams.delete('reason');
-            setSearchParams(searchParams, { replace: true });
         }
     }, []);
 
@@ -70,20 +75,28 @@ export default function Settings() {
 
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-semibold">Settings</h1>
+            <div>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Settings</h1>
+                <p className="text-sm text-slate-500 mt-0.5">Manage integrations and workspace preferences</p>
+            </div>
 
-            <Card title="Google Integration">
+            <Card title="Google Integration" action={<Link2 size={16} className="text-slate-400" />}>
                 {loading ? (
                     <p className="text-sm text-slate-500">Loading…</p>
                 ) : status.connected ? (
                     <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                            <Badge tone="Active">Connected</Badge>
-                            <span className="text-sm text-slate-700">{status.email}</span>
+                        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-soft">
+                                <span className="text-lg">✓</span>
+                            </div>
+                            <div>
+                                <Badge tone="Active">Connected</Badge>
+                                <p className="text-sm text-slate-700 mt-1">{status.email}</p>
+                            </div>
                         </div>
-                        <p className="text-xs text-slate-500">
-                            Google Calendar aur Gmail API is account se connected hai. Meetings real
-                            calendar events banayengi aur replies automatically track honge.
+                        <p className="text-xs text-slate-500 leading-relaxed">
+                            Google Calendar and Gmail API are connected to this account. Meetings will create real
+                            calendar events and replies will be tracked automatically.
                         </p>
                         <Button variant="secondary" onClick={disconnect}>
                             Disconnect Google Account
@@ -91,13 +104,22 @@ export default function Settings() {
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        <p className="text-sm text-slate-600">Google account connect karo taaki:</p>
-                        <ul className="text-sm text-slate-600 list-disc ml-5 space-y-1">
-                            <li>Meetings Google Calendar me events banayen</li>
-                            <li>Attendees ko email invites jayein</li>
-                            <li>Google Meet links auto-generate hon</li>
-                            <li>Customer replies automatically track hon</li>
-                        </ul>
+                        <div className="flex items-start gap-4">
+                            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center shrink-0 shadow-soft">
+                                <LinkIcon size={20} className="text-white" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-slate-800">Connect your Google account to unlock:</p>
+                                <ul className="text-sm text-slate-600 mt-2 space-y-1.5">
+                                    {benefits.map(({ icon: Icon, text }) => (
+                                        <li key={text} className="flex items-center gap-2">
+                                            <Icon size={14} className="text-slate-400 shrink-0" />
+                                            {text}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
                         <Button onClick={connect}>🔗 Connect Google Account</Button>
                     </div>
                 )}

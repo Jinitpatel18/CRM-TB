@@ -8,7 +8,7 @@ export default function Table({ columns, data, empty = 'No data', rowKey = 'id',
             {/* ── Mobile: card list ── */}
             <div className="sm:hidden divide-y divide-slate-100">
                 {data?.length === 0 && (
-                    <p className="py-8 text-center text-sm text-slate-400">{empty}</p>
+                    <p className="py-10 text-center text-sm text-slate-400">{empty}</p>
                 )}
                 {data?.map((row) => {
                     const title = columns[0];
@@ -17,7 +17,7 @@ export default function Table({ columns, data, empty = 'No data', rowKey = 'id',
                         <div
                             key={row[rowKey]}
                             onClick={() => onRowClick?.(row)}
-                            className={`py-3 ${clickable ? 'cursor-pointer active:bg-slate-50' : ''}`}
+                            className={`py-3 transition-colors ${clickable ? 'cursor-pointer active:bg-slate-50' : ''}`}
                         >
                             <div className="flex items-center justify-between gap-2">
                                 <div className="min-w-0 flex-1">
@@ -26,7 +26,7 @@ export default function Table({ columns, data, empty = 'No data', rowKey = 'id',
                                     </div>
                                 </div>
                                 {clickable && (
-                                    <ChevronRight size={16} className="text-slate-400 shrink-0" />
+                                    <ChevronRight size={16} className="text-slate-300 shrink-0" />
                                 )}
                             </div>
                             {rest.length > 0 && (
@@ -52,22 +52,22 @@ export default function Table({ columns, data, empty = 'No data', rowKey = 'id',
                     <thead>
                         <tr className="border-b border-slate-200 text-left text-slate-500">
                             {columns.map((c) => (
-                                <th key={c.key} className="px-4 py-2 font-medium whitespace-nowrap">{c.label}</th>
+                                <th key={c.key} className="px-4 py-2.5 font-medium text-xs uppercase tracking-wider whitespace-nowrap">{c.label}</th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
                         {data?.length === 0 && (
-                            <tr><td colSpan={columns.length} className="px-4 py-8 text-center text-slate-400">{empty}</td></tr>
+                            <tr><td colSpan={columns.length} className="px-4 py-12 text-center text-slate-400">{empty}</td></tr>
                         )}
                         {data?.map((row) => (
                             <tr
                                 key={row[rowKey]}
                                 onClick={() => onRowClick?.(row)}
-                                className={`border-b border-slate-100 hover:bg-slate-50 ${clickable ? 'cursor-pointer' : ''}`}
+                                className={`border-b border-slate-100 last:border-0 transition-colors hover:bg-brand-50/40 ${clickable ? 'cursor-pointer' : ''}`}
                             >
                                 {columns.map((c) => (
-                                    <td key={c.key} className="px-4 py-2">
+                                    <td key={c.key} className="px-4 py-2.5">
                                         {c.render ? c.render(row) : row[c.key]}
                                     </td>
                                 ))}

@@ -83,7 +83,10 @@ export default function BulkSend() {
 
     return (
         <div className="space-y-4">
-            <h1 className="text-2xl font-semibold">Bulk Send</h1>
+            <div>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Bulk Send</h1>
+                <p className="text-sm text-slate-500 mt-0.5">Send a template to many contacts at once</p>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <Card title="1. Configure" className="lg:col-span-1">
@@ -164,15 +167,19 @@ export default function BulkSend() {
                         {contacts.map((c) => (
                             <label
                                 key={c.id}
-                                className="flex items-center gap-3 p-2 rounded hover:bg-slate-50 cursor-pointer"
+                                className={`flex items-center gap-3 p-2 rounded-lg border cursor-pointer transition ${selected.includes(c.id)
+                                    ? 'border-brand-200 bg-brand-50/60'
+                                    : 'border-transparent hover:bg-slate-50 hover:border-slate-100'
+                                }`}
                             >
                                 <input
                                     type="checkbox"
                                     checked={selected.includes(c.id)}
                                     onChange={() => toggle(c.id)}
+                                    className="rounded border-slate-300 text-brand-600 focus:ring-brand-500/30"
                                 />
                                 <div className="flex-1">
-                                    <div className="text-sm font-medium">{c.name}</div>
+                                    <div className="text-sm font-medium text-slate-800">{c.name}</div>
                                     <div className="text-xs text-slate-500">
                                         {c.email || c.phone} {c.role && `· ${c.role}`}
                                     </div>

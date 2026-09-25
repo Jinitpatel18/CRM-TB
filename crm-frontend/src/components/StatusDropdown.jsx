@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Circle } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 const STATUSES = [
-    { value: 'Active', dot: 'bg-green-500', pill: 'bg-green-100 text-green-700' },
-    { value: 'Inactive', dot: 'bg-slate-400', pill: 'bg-slate-100 text-slate-600' },
-    { value: 'Churned', dot: 'bg-red-500', pill: 'bg-red-100 text-red-700' },
-    { value: 'Prospect', dot: 'bg-blue-500', pill: 'bg-blue-100 text-blue-700' },
+    { value: 'Active', dot: 'bg-green-500', pill: 'bg-green-100 text-green-700 ring-1 ring-inset ring-green-600/20' },
+    { value: 'Inactive', dot: 'bg-slate-400', pill: 'bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-500/20' },
+    { value: 'Churned', dot: 'bg-red-500', pill: 'bg-red-100 text-red-700 ring-1 ring-inset ring-red-600/20' },
+    { value: 'Prospect', dot: 'bg-blue-500', pill: 'bg-blue-100 text-blue-700 ring-1 ring-inset ring-blue-600/20' },
 ];
 
 export default function StatusDropdown({ value, onChange, disabled, size = 'md' }) {
@@ -29,7 +29,7 @@ export default function StatusDropdown({ value, onChange, disabled, size = 'md' 
                 type="button"
                 disabled={disabled}
                 onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-                className={`inline-flex items-center gap-1.5 rounded-full font-medium transition ${current.pill} ${sizeClass} ${disabled ? 'opacity-60 cursor-default' : 'hover:opacity-90 cursor-pointer'
+                className={`inline-flex items-center gap-1.5 rounded-full font-medium transition-all ${current.pill} ${sizeClass} ${disabled ? 'opacity-60 cursor-default' : 'hover:opacity-90 hover:shadow-soft cursor-pointer'
                     }`}
             >
                 <span className={`w-1.5 h-1.5 rounded-full ${current.dot}`} />
@@ -39,7 +39,7 @@ export default function StatusDropdown({ value, onChange, disabled, size = 'md' 
 
             {open && (
                 <div
-                    className="absolute z-30 mt-1 left-0 min-w-[140px] bg-white border border-slate-200 rounded-lg shadow-lg py-1"
+                    className="absolute z-30 mt-1.5 left-0 min-w-[140px] bg-white border border-slate-200 rounded-xl shadow-pop py-1 animate-scale-in origin-top-left"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {STATUSES.map((s) => (
@@ -51,7 +51,7 @@ export default function StatusDropdown({ value, onChange, disabled, size = 'md' 
                                 setOpen(false);
                             }}
                             className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left transition ${s.value === value
-                                    ? 'bg-slate-50 font-medium'
+                                    ? 'bg-brand-50 font-medium text-brand-700'
                                     : 'hover:bg-slate-50 text-slate-700'
                                 }`}
                         >

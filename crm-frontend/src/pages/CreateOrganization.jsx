@@ -71,7 +71,7 @@ export default function CreateOrganization() {
                     <Building2 size={24} className="text-brand-600" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-semibold">Create Organization</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Create Organization</h1>
                     <p className="text-sm text-slate-500">
                         Organizations keep your CRM data separate. Each org has its own companies, contacts, and team.
                     </p>
