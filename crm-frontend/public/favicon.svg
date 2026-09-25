@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="favGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded square background -->
+  <rect width="48" height="48" rx="12" fill="url(#favGradient)"/>
+  
+  <!-- White C shape -->
+  <path 
+    d="M 24 12 A 12 12 0 1 0 24 36" 
+    stroke="white" 
+    stroke-width="4.5" 
+    stroke-linecap="round" 
+    fill="none"
+  />
+  
+  <!-- Center dot -->
+  <circle cx="24" cy="24" r="2.5" fill="white"/>
+  
+  <!-- Signal dots (white) -->
+  <circle cx="30" cy="18" r="1.5" fill="white" opacity="0.9"/>
+  <circle cx="30" cy="30" r="1.5" fill="white" opacity="0.9"/>
+</svg>
