@@ -41,8 +41,8 @@ export default function Sidebar({ onNavigate, className }) {
 
     return (
         <aside className={clsx('w-60 shrink-0 bg-white border-r border-slate-200 flex flex-col h-full', className)}>
-            <div className="h-14 flex items-center px-5 border-b border-slate-100 shrink-0">
-                <span className="font-bold text-brand-600 text-lg">CRM</span>
+            <div className="h-14 flex items-center px-5 border-b border-slate-100">
+                <img src="./logo.svg" alt="CRM" className="h-8" />
             </div>
 
             <div className="p-3 border-b border-slate-100">
