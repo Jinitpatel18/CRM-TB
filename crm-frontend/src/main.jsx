@@ -7,6 +7,7 @@ import App from './App';
 import { queryClient } from './lib/queryClient';
 import { AuthProvider } from './lib/AuthContext';
 import './index.css';
+import { OrgProvider } from './lib/OrgContext';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
@@ -15,8 +16,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
             >
                 <AuthProvider>
-                    <App />
-                    <Toaster position="top-right" />
+                    <OrgProvider>
+                        <App />
+                        <Toaster position="top-right" />
+                    </OrgProvider>
                 </AuthProvider>
             </BrowserRouter>
         </QueryClientProvider>

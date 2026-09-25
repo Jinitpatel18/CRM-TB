@@ -1,10 +1,17 @@
 import { query, withTransaction } from '../config/database.js';
 import { AppError } from '../middleware/errorHandler.js';
 
-export const createContact = async (payload, userId) =>
+const assertCompanyOwnership = async (client, companyId, orgId) => {
+    const r = await client.query(
+        `SELECT id FROM companies WHERE id = $1 AND organization_id = $2`,
+        [companyId, orgId]
+    );
+    if (!r.rows[0]) throw new AppError('Company not found or not yours', 404, 'NOT_FOUND');
+};
+
+export const createContact = async (payload, userId, orgId) =>
     withTransaction(async (client) => {
-        const company = await client.query(`SELECT id FROM companies WHERE id = $1`, [payload.company_id]);
-        if (!company.rows[0]) throw new AppError('Company not found', 404, 'NOT_FOUND');
+        await assertCompanyOwnership(client, payload.company_id, orgId);
 
         if (payload.is_primary_contact) {
             await client.query(
@@ -15,10 +22,11 @@ export const createContact = async (payload, userId) =>
 
         const { rows } = await client.query(
             `INSERT INTO contacts 
-         (company_id, name, email, phone, role, status, is_primary_contact, created_by, updated_by)
+         (company_id, name, email, phone, role, status, is_primary_contact, 
+          created_by, updated_by, organization_id)
        VALUES ($1, $2, $3, $4, $5, 
                COALESCE($6::contact_status, 'Active'::contact_status), 
-               COALESCE($7, false), $8, $8)
+               COALESCE($7, false), $8, $8, $9)
        RETURNING *`,
             [
                 payload.company_id,
@@ -29,6 +37,7 @@ export const createContact = async (payload, userId) =>
                 payload.status || null,
                 payload.is_primary_contact,
                 userId,
+                orgId,
             ]
         );
         const contact = rows[0];
@@ -44,20 +53,23 @@ export const createContact = async (payload, userId) =>
         return contact;
     });
 
-export const getContactById = async (id) => {
+export const getContactById = async (id, orgId) => {
     const { rows } = await query(
         `SELECT c.*, cp.email_optin, cp.whatsapp_optin, cp.call_optin, cp.do_not_contact
      FROM contacts c
      LEFT JOIN contact_preferences cp ON cp.contact_id = c.id
-     WHERE c.id = $1`,
-        [id]
+     WHERE c.id = $1 AND c.organization_id = $2`,
+        [id, orgId]
     );
     return rows[0];
 };
 
-export const updateContact = async (id, payload, userId) =>
+export const updateContact = async (id, payload, userId, orgId) =>
     withTransaction(async (client) => {
-        const existing = await client.query(`SELECT * FROM contacts WHERE id = $1`, [id]);
+        const existing = await client.query(
+            `SELECT * FROM contacts WHERE id = $1 AND organization_id = $2`,
+            [id, orgId]
+        );
         if (!existing.rows[0]) throw new AppError('Contact not found', 404, 'NOT_FOUND');
 
         if (payload.is_primary_contact) {

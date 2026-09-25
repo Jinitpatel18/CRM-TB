@@ -1,13 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
+import { useOrg } from '../lib/OrgContext';   // ← top me add
 
-export const useCompanyActivities = (companyId) =>
-    useQuery({
-        queryKey: ['activities', String(companyId)],
+export const useCompanyActivities = (companyId) => {
+    const { activeOrgId } = useOrg();
+    return useQuery({
+        queryKey: ['activities', String(companyId), activeOrgId],   // ← orgId in key
         queryFn: () => api.companyActivities(companyId),
-        enabled: !!companyId,
+        enabled: !!companyId && !!activeOrgId,
     });
+};
 
 export const useSendMessage = () => {
     const qc = useQueryClient();

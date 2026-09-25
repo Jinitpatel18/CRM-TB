@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Button from '../components/Button';
 import Input from '../components/Input';
@@ -9,7 +9,8 @@ export default function Login() {
     const { signIn } = useAuth();
     const nav = useNavigate();
     const location = useLocation();
-    const from = location.state?.from?.pathname || '/';
+    const [searchParams] = useSearchParams();
+    const from = searchParams.get('return') || location.state?.from?.pathname || '/';
 
     const [form, setForm] = useState({ email: '', password: '' });
     const [loading, setLoading] = useState(false);

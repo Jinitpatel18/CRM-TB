@@ -3,23 +3,15 @@ import { AppError } from '../middleware/errorHandler.js';
 import { createActivity } from './activity.service.js';
 import { enqueueMessage } from './queue.service.js';
 
-export const bulkSend = async (payload, userId) => {
-    const {
-        contact_ids,
-        template_id,
-        activity_type,
-        scheduled_for,
-        variables,
-        attachment_ids,
-    } = payload;
+export const bulkSend = async (payload, userId, orgId) => {
+    const { contact_ids, template_id, activity_type, scheduled_for, variables, attachment_ids } = payload;
 
-    // Fetch valid contacts (along with their company)
     const contacts = await query(
         `SELECT c.*, co.id AS company_id
      FROM contacts c
      JOIN companies co ON co.id = c.company_id
-     WHERE c.id = ANY($1::int[])`,
-        [contact_ids]
+     WHERE c.id = ANY($1::int[]) AND co.organization_id = $2`,
+        [contact_ids, orgId]
     );
     if (contacts.rows.length === 0) {
         throw new AppError('No valid contacts', 400, 'NO_CONTACTS');
@@ -35,9 +27,10 @@ export const bulkSend = async (payload, userId) => {
                 activity_type,
                 scheduled_for,
                 variables,
-                attachment_ids,   // ← Step 8: attachments pass to each activity
+                attachment_ids,
             },
-            userId              // ← Auth: auto-assign current user as sender
+            userId,
+            orgId
         );
 
         await enqueueMessage({
@@ -49,8 +42,5 @@ export const bulkSend = async (payload, userId) => {
         created.push(activity.id);
     }
 
-    return {
-        queued: created.length,
-        activity_ids: created,
-    };
+    return { queued: created.length, activity_ids: created };
 };

@@ -319,7 +319,7 @@ export const parseImportFileWithMapping = async ({
 // ============================================================
 // MAIN EXPORT 3: markDuplicates (single company)
 // ============================================================
-export const markDuplicates = async (contacts, companyId, query) => {
+export const markDuplicates = async (contacts, companyId, orgId, query) => {
     if (!contacts.length) return contacts;
 
     const emails = contacts.map((c) => c.email).filter(Boolean);
@@ -327,9 +327,9 @@ export const markDuplicates = async (contacts, companyId, query) => {
 
     const { rows } = await query(
         `SELECT email, phone FROM contacts 
-     WHERE company_id = $1 
-       AND (email = ANY($2::text[]) OR phone = ANY($3::text[]))`,
-        [companyId, emails, phones]
+     WHERE company_id = $1 AND organization_id = $2
+       AND (email = ANY($3::text[]) OR phone = ANY($4::text[]))`,
+        [companyId, orgId, emails, phones]
     );
 
     const existingEmails = new Set(rows.map((r) => r.email).filter(Boolean));
@@ -346,7 +346,7 @@ export const markDuplicates = async (contacts, companyId, query) => {
 // ============================================================
 // MAIN EXPORT 4: markMultiDuplicates (multi-company)
 // ============================================================
-export const markMultiDuplicates = async (contacts, query) => {
+export const markMultiDuplicates = async (contacts, orgId, query) => {
     if (!contacts.length) return { contacts, companies: [] };
 
     const companyNames = [
@@ -363,8 +363,8 @@ export const markMultiDuplicates = async (contacts, query) => {
 
     const { rows: existingCompanies } = await query(
         `SELECT id, LOWER(TRIM(name)) AS name_lower, name FROM companies
-     WHERE LOWER(TRIM(name)) = ANY($1::text[])`,
-        [companyNames.map((n) => n.toLowerCase())]
+     WHERE organization_id = $1 AND LOWER(TRIM(name)) = ANY($2::text[])`,
+        [orgId, companyNames.map((n) => n.toLowerCase())]
     );
 
     const existingMap = new Map(existingCompanies.map((c) => [c.name_lower, c]));
@@ -376,8 +376,9 @@ export const markMultiDuplicates = async (contacts, query) => {
         `SELECT c.email, c.phone, LOWER(TRIM(co.name)) AS company_name
      FROM contacts c
      JOIN companies co ON co.id = c.company_id
-     WHERE (c.email = ANY($1::text[]) OR c.phone = ANY($2::text[]))`,
-        [emails, phones]
+     WHERE co.organization_id = $1 
+       AND (c.email = ANY($2::text[]) OR c.phone = ANY($3::text[]))`,
+        [orgId, emails, phones]
     );
 
     const existingContactSet = new Set(

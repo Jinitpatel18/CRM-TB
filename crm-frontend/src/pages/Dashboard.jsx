@@ -1,18 +1,33 @@
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
+import { useOrg } from '../lib/OrgContext';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
 import LiveActivityFeed from '../components/LiveActivityFeed';
-import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
-    const { data: queue } = useQuery({ queryKey: ['queue'], queryFn: api.queueStatus, refetchInterval: 5000 });
+    const { activeOrgId, activeOrg } = useOrg();
+
+    const { data: queue } = useQuery({
+        queryKey: ['queue', activeOrgId],           // ← orgId in key
+        queryFn: api.queueStatus,
+        refetchInterval: 5000,
+        enabled: !!activeOrgId,                     // ← Wait for org
+    });
 
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-semibold">Dashboard</h1>
+            <div>
+                <h1 className="text-2xl font-semibold">Dashboard</h1>
+                {activeOrg && (
+                    <p className="text-sm text-slate-500">
+                        {activeOrg.name}
+                    </p>
+                )}
+            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card title="Email Queue">
                     <div className="grid grid-cols-2 gap-2 text-sm">
                         {Object.entries(queue?.emailQueue || {}).map(([k, v]) => (
@@ -47,12 +62,13 @@ export default function Dashboard() {
                 </Card>
             </div>
 
+            {/* ⬇️ Pass activeOrgId so feed refetches on switch */}
             <Card title="Live Activity Feed">
-                <LiveActivityFeed />
+                <LiveActivityFeed orgId={activeOrgId} />
             </Card>
 
             <Card title="Quick actions">
-                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                     <Link to="/companies" className="text-brand-600 hover:underline text-sm">+ New Company</Link>
                     <Link to="/send" className="text-brand-600 hover:underline text-sm">+ Send Message</Link>
                     <Link to="/meetings" className="text-brand-600 hover:underline text-sm">+ Schedule Meeting</Link>

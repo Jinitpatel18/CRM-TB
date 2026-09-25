@@ -4,30 +4,30 @@ import { supabase } from '../lib/supabase';
 import { api } from '../lib/api';
 import Badge from './Badge';
 
-export default function LiveActivityFeed({ companyId, limit = 10 }) {
+export default function LiveActivityFeed({ orgId, limit = 10 }) {
     const [liveEvents, setLiveEvents] = useState([]);
 
-    // Initial load via API
+    // Initial load — now org-aware
     const { data: initial = [], isLoading } = useQuery({
-        queryKey: ['recent-activities', companyId, limit],
-        queryFn: () =>
-            companyId
-                ? api.companyActivities(companyId).then((a) => a.slice(0, limit))
-                : api.recentActivities(limit),
+        queryKey: ['recent-activities', orgId, limit],   // ← orgId in key
+        queryFn: () => api.recentActivities(limit),
+        enabled: !!orgId,
         refetchInterval: 30000,
     });
 
-    // Realtime subscription
+    // Realtime — subscribe to activities (all, but filtered client-side by org)
     useEffect(() => {
+        if (!orgId) return;
+
         const channel = supabase
-            .channel('activities-live')
+            .channel(`activities-live-${orgId}`)
             .on(
                 'postgres_changes',
                 {
                     event: '*',
                     schema: 'public',
                     table: 'activities',
-                    ...(companyId ? { filter: `company_id=eq.${companyId}` } : {}),
+                    filter: `organization_id=eq.${orgId}`,     // ← Realtime filter by org
                 },
                 (payload) => {
                     setLiveEvents((prev) =>
@@ -40,7 +40,12 @@ export default function LiveActivityFeed({ companyId, limit = 10 }) {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [companyId, limit]);
+    }, [orgId, limit]);
+
+    // Reset live events when org changes
+    useEffect(() => {
+        setLiveEvents([]);
+    }, [orgId]);
 
     // Combine live + initial, dedupe by id
     const combined = [

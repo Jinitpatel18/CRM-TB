@@ -3,11 +3,6 @@ import { query, withTransaction } from '../config/database.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { logger } from '../utils/logger.js';
 
-/**
- * POST /api/import/preview
- * Upload file → parse → return preview (with duplicate flags)
- * Supports BOTH single-company and multi-company modes.
- */
 export const preview = async (req, res, next) => {
     try {
         if (!req.file) throw new AppError('No file uploaded', 400, 'NO_FILE');
@@ -21,23 +16,23 @@ export const preview = async (req, res, next) => {
             !companyIdRaw || companyIdRaw === 'null' || companyIdRaw === '';
         const companyId = isMulti ? null : Number(companyIdRaw);
 
-        // Single-company mode: verify company exists
         if (!isMulti) {
-            const check = await query(`SELECT id FROM companies WHERE id = $1`, [companyId]);
+            const check = await query(
+                `SELECT id FROM companies WHERE id = $1 AND organization_id = $2`,
+                [companyId, req.org.id]
+            );
             if (!check.rows[0]) throw new AppError('Company not found', 404, 'NOT_FOUND');
         }
 
-        // Parse file
-        const result = await svc.parseImportFile({
+        const result = await svc.parseImportFileWithMapping({
             buffer: req.file.buffer,
             fileName: req.file.originalname,
             mimeType: req.file.mimetype,
             columnMapping,
         });
 
-        // ---- Multi-company mode ----
         if (isMulti) {
-            const multiResult = await svc.markMultiDuplicates(result.contacts, query);
+            const multiResult = await svc.markMultiDuplicates(result.contacts, req.org.id, query);
             return res.json({
                 success: true,
                 data: {
@@ -53,8 +48,7 @@ export const preview = async (req, res, next) => {
             });
         }
 
-        // ---- Single-company mode ----
-        const withDups = await svc.markDuplicates(result.contacts, companyId, query);
+        const withDups = await svc.markDuplicates(result.contacts, companyId, req.org.id, query);
         res.json({
             success: true,
             data: {
@@ -63,17 +57,24 @@ export const preview = async (req, res, next) => {
                 contacts: withDups,
             },
         });
-    } catch (e) {
-        next(e);
-    }
+    } catch (e) { next(e); }
 };
 
-/**
- * POST /api/import/confirm
- * Insert selected contacts.
- * - company_id provided → single-company mode
- * - company_id null/absent → multi-company mode (groups by `company` field)
- */
+export const detectColumns = async (req, res, next) => {
+    try {
+        if (!req.file) throw new AppError('No file uploaded', 400, 'NO_FILE');
+
+        const result = await svc.parseImportFileWithMapping({
+            buffer: req.file.buffer,
+            fileName: req.file.originalname,
+            mimeType: req.file.mimetype,
+            columnMapping: null,
+        });
+
+        res.json({ success: true, data: result });
+    } catch (e) { next(e); }
+};
+
 export const confirm = async (req, res, next) => {
     try {
         const { company_id, contacts, skip_duplicates = true } = req.body;
@@ -82,13 +83,14 @@ export const confirm = async (req, res, next) => {
             throw new AppError('No contacts to import', 400, 'NO_CONTACTS');
         }
 
-        // Multi-company mode
         if (!company_id) {
             return confirmMulti(req, res, { contacts, skip_duplicates });
         }
 
-        // Single-company mode
-        const check = await query(`SELECT id FROM companies WHERE id = $1`, [company_id]);
+        const check = await query(
+            `SELECT id FROM companies WHERE id = $1 AND organization_id = $2`,
+            [company_id, req.org.id]
+        );
         if (!check.rows[0]) throw new AppError('Company not found', 404, 'NOT_FOUND');
 
         const inserted = [];
@@ -112,10 +114,10 @@ export const confirm = async (req, res, next) => {
 
                 const { rows } = await client.query(
                     `INSERT INTO contacts 
-             (company_id, name, email, phone, role, created_by, updated_by)
-           VALUES ($1, $2, $3, $4, $5, $6, $6)
+             (company_id, name, email, phone, role, created_by, updated_by, organization_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $6, $7)
            RETURNING *`,
-                    [company_id, c.name, c.email || null, c.phone || null, c.role || null, req.user.id]
+                    [company_id, c.name, c.email || null, c.phone || null, c.role || null, req.user.id, req.org.id]
                 );
                 const contact = rows[0];
 
@@ -139,22 +141,16 @@ export const confirm = async (req, res, next) => {
                 contacts: inserted,
             },
         });
-    } catch (e) {
-        next(e);
-    }
+    } catch (e) { next(e); }
 };
 
-/**
- * Multi-company confirm helper.
- * Groups contacts by `company` name, creates missing companies, merges into existing ones.
- */
 async function confirmMulti(req, res, { contacts, skip_duplicates }) {
     const inserted = [];
     const skipped = [];
     const createdCompanies = [];
     const mergedCompanies = [];
+    const orgId = req.org.id;
 
-    // Group contacts by company name (case-insensitive)
     const grouped = {};
     for (const c of contacts) {
         const name = (c.company || '').trim();
@@ -177,42 +173,44 @@ async function confirmMulti(req, res, { contacts, skip_duplicates }) {
 
     await withTransaction(async (client) => {
         for (const { name: companyName, contacts: companyContacts } of Object.values(grouped)) {
-            // Find existing company
             let companyId;
             const { rows: existing } = await client.query(
-                `SELECT id FROM companies WHERE LOWER(TRIM(name)) = LOWER(TRIM($1))`,
-                [companyName]
+                `SELECT id FROM companies 
+         WHERE LOWER(TRIM(name)) = LOWER(TRIM($1)) AND organization_id = $2`,
+                [companyName, orgId]
             );
 
-            // Existing company mila to email update karo (agar empty hai)
             if (existing[0]) {
                 companyId = existing[0].id;
                 mergedCompanies.push({ name: companyName, id: companyId });
 
-                // Auto-fill company email if empty (from first contact)
-                const firstEmail = companyContacts.find((c) => c.email)?.email;
-                if (firstEmail) {
+                const explicitCompanyEmail = companyContacts.find((c) => c.company_email)?.company_email || null;
+                const firstContactEmail = companyContacts.find((c) => c.email)?.email || null;
+                const emailToSet = explicitCompanyEmail || firstContactEmail;
+
+                if (emailToSet) {
                     await client.query(
                         `UPDATE companies 
-       SET email = COALESCE(email, $1), updated_at = NOW()
-       WHERE id = $2 AND (email IS NULL OR email = '')`,
-                        [firstEmail, companyId]
+             SET email = COALESCE(email, $1), updated_at = NOW()
+             WHERE id = $2 AND (email IS NULL OR email = '')`,
+                        [emailToSet, companyId]
                     );
                 }
             } else {
-                // Nai company create karo — auto-fill email from first contact
-                const firstEmail = companyContacts.find((c) => c.email)?.email || null;
+                const explicitCompanyEmail = companyContacts.find((c) => c.company_email)?.company_email || null;
+                const firstContactEmail = companyContacts.find((c) => c.email)?.email || null;
+                const companyEmail = explicitCompanyEmail || firstContactEmail;
+
                 const { rows: created } = await client.query(
-                    `INSERT INTO companies (name, email, status, created_by, updated_by)
-         VALUES ($1, $2, 'Prospect'::company_status, $3, $3)
-         RETURNING id, name, email`,
-                    [companyName, firstEmail, req.user.id]
+                    `INSERT INTO companies (name, email, status, created_by, updated_by, organization_id)
+           VALUES ($1, $2, 'Prospect'::company_status, $3, $3, $4)
+           RETURNING id, name`,
+                    [companyName, companyEmail, req.user.id, orgId]
                 );
                 companyId = created[0].id;
-                createdCompanies.push({ name: companyName, id: companyId, email: firstEmail });
+                createdCompanies.push({ name: companyName, id: companyId, email: companyEmail });
             }
 
-            // Insert contacts
             for (const c of companyContacts) {
                 if (skip_duplicates) {
                     const { rows: dup } = await client.query(
@@ -230,10 +228,10 @@ async function confirmMulti(req, res, { contacts, skip_duplicates }) {
 
                 const { rows } = await client.query(
                     `INSERT INTO contacts 
-             (company_id, name, email, phone, role, created_by, updated_by)
-           VALUES ($1, $2, $3, $4, $5, $6, $6)
+             (company_id, name, email, phone, role, created_by, updated_by, organization_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $6, $7)
            RETURNING *`,
-                    [companyId, c.name, c.email || null, c.phone || null, c.role || null, req.user.id]
+                    [companyId, c.name, c.email || null, c.phone || null, c.role || null, req.user.id, orgId]
                 );
                 const contact = rows[0];
 
@@ -248,7 +246,7 @@ async function confirmMulti(req, res, { contacts, skip_duplicates }) {
     });
 
     logger.info(
-        `[import-multi] ${createdCompanies.length} companies created, ${mergedCompanies.length} merged, ${inserted.length} contacts imported, ${skipped.length} skipped`
+        `[import-multi] ${createdCompanies.length} companies created, ${mergedCompanies.length} merged, ${inserted.length} contacts imported`
     );
 
     res.status(201).json({
@@ -265,23 +263,3 @@ async function confirmMulti(req, res, { contacts, skip_duplicates }) {
         },
     });
 }
-/**
- * POST /api/import/detect-columns
- * Upload file → return headers + sample rows + auto-detected mapping
- */
-export const detectColumns = async (req, res, next) => {
-    try {
-        if (!req.file) throw new AppError('No file uploaded', 400, 'NO_FILE');
-
-        const result = await svc.parseImportFileWithMapping({
-            buffer: req.file.buffer,
-            fileName: req.file.originalname,
-            mimeType: req.file.mimetype,
-            columnMapping: null,
-        });
-
-        res.json({ success: true, data: result });
-    } catch (e) {
-        next(e);
-    }
-};

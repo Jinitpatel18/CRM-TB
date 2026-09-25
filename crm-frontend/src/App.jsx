@@ -16,6 +16,8 @@ import Team from './pages/Team';
 import AuditLog from './pages/AuditLog';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import AcceptInvite from './pages/AcceptInvite';
+import CreateOrganization from './pages/CreateOrganization';
 
 export default function App() {
     return (
@@ -23,6 +25,7 @@ export default function App() {
             {/* Public */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/invite/:token" element={<AcceptInvite />} />
 
             {/* Protected */}
             <Route
@@ -41,6 +44,7 @@ export default function App() {
                                 <Route path="/queue" element={<Queue />} />
                                 <Route path ="/settings" element={<Settings />} />
                                 <Route path="/analytics" element={<Analytics />} />
+                                <Route path="/organizations/new" element={<CreateOrganization />} />
                                 {/* Admin-only */}
                                 <Route
                                     path="/team"

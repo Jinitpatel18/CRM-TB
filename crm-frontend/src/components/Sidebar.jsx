@@ -7,6 +7,7 @@ import {
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
 import { useAuth } from '../lib/AuthContext';
+import OrgSwitcher from './OrgSwitcher';
 
 const baseItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -42,6 +43,10 @@ export default function Sidebar({ onNavigate, className }) {
         <aside className={clsx('w-60 shrink-0 bg-white border-r border-slate-200 flex flex-col h-full', className)}>
             <div className="h-14 flex items-center px-5 border-b border-slate-100 shrink-0">
                 <span className="font-bold text-brand-600 text-lg">CRM</span>
+            </div>
+
+            <div className="p-3 border-b border-slate-100">
+                <OrgSwitcher />
             </div>
 
             <nav className="flex-1 p-3 space-y-1 overflow-y-auto">

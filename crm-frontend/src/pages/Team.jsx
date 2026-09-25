@@ -1,73 +1,91 @@
 import { useState } from 'react';
-import { ChevronDown, Shield, UserX, UserCheck, Crown, Eye, Briefcase } from 'lucide-react';
-import { useAuth } from '../lib/AuthContext';
-import { useUsers, useUpdateUserRole, useUpdateUserStatus } from '../hooks/useUsers';
+import { Crown, Briefcase, Eye, UserX, UserCheck, UserPlus, Trash2, Mail } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Card from '../components/Card';
-import Badge from '../components/Badge';
-import Table from '../components/Table';
-import Modal from '../components/Modal';
 import Button from '../components/Button';
+import Badge from '../components/Badge';
+import Modal from '../components/Modal';
+import Input, { Select } from '../components/Input';
+import { api } from '../lib/api';
+import { useAuth } from '../lib/AuthContext';
+import { useOrg } from '../lib/OrgContext';
 
-// ---- Helpers ----
+const roleConfig = {
+    admin: { label: 'Admin', icon: Crown, badge: 'bg-purple-100 text-purple-700', avatar: 'bg-purple-500' },
+    sales: { label: 'Sales', icon: Briefcase, badge: 'bg-blue-100 text-blue-700', avatar: 'bg-blue-500' },
+    viewer: { label: 'Viewer', icon: Eye, badge: 'bg-slate-100 text-slate-600', avatar: 'bg-slate-500' },
+};
 
 const getInitials = (email) => {
     if (!email) return '?';
-    return email
-        .split('@')[0]
-        .split(/[._-]/)
-        .map((s) => s[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase();
+    return email.split('@')[0].split(/[._-]/).map((s) => s[0]).slice(0, 2).join('').toUpperCase();
 };
 
-const roleConfig = {
-    admin: {
-        label: 'Admin',
-        icon: Crown,
-        badge: 'bg-purple-100 text-purple-700 border-purple-200',
-        avatar: 'bg-purple-500',
-        dot: 'bg-purple-500',
-    },
-    sales: {
-        label: 'Sales',
-        icon: Briefcase,
-        badge: 'bg-blue-100 text-blue-700 border-blue-200',
-        avatar: 'bg-blue-500',
-        dot: 'bg-blue-500',
-    },
-    viewer: {
-        label: 'Viewer',
-        icon: Eye,
-        badge: 'bg-slate-100 text-slate-600 border-slate-200',
-        avatar: 'bg-slate-500',
-        dot: 'bg-slate-500',
-    },
+// ============ Members Hooks ============
+const useMembers = () =>
+    useQuery({ queryKey: ['org-members'], queryFn: api.listOrgMembers });
+
+const useUpdateMemberRole = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, role }) => api.updateOrgMemberRole(id, role),
+        onSuccess: () => {
+            toast.success('Role updated');
+            qc.invalidateQueries({ queryKey: ['org-members'] });
+        },
+        onError: (err) => toast.error(err.message),
+    });
 };
 
-// ---- Role Change Modal ----
+const useRemoveMember = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => api.removeOrgMember(id),
+        onSuccess: () => {
+            toast.success('Member removed');
+            qc.invalidateQueries({ queryKey: ['org-members'] });
+        },
+        onError: (err) => toast.error(err.message),
+    });
+};
+
+// ============ Invitations Hooks ============
+const useInvitations = () =>
+    useQuery({ queryKey: ['invitations'], queryFn: api.listInvitations });
+
+const useCreateInvitation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (body) => api.createInvitation(body),
+        onSuccess: () => {
+            toast.success('Invitation created!');
+            qc.invalidateQueries({ queryKey: ['invitations'] });
+        },
+        onError: (err) => toast.error(err.message),
+    });
+};
+
+const useRevokeInvitation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => api.revokeInvitation(id),
+        onSuccess: () => {
+            toast.success('Invitation revoked');
+            qc.invalidateQueries({ queryKey: ['invitations'] });
+        },
+        onError: (err) => toast.error(err.message),
+    });
+};
+
+// ============ Role Change Modal ============
 function RoleModal({ user, open, onClose, onChange, currentUserId }) {
     const [selected, setSelected] = useState(user?.role);
 
     const options = [
-        {
-            value: 'admin',
-            label: 'Admin',
-            desc: 'Full access. Manage team, audit logs, roles.',
-            icon: Crown,
-        },
-        {
-            value: 'sales',
-            label: 'Sales',
-            desc: 'Create companies, contacts, send messages.',
-            icon: Briefcase,
-        },
-        {
-            value: 'viewer',
-            label: 'Viewer',
-            desc: 'Read-only access. Cannot modify anything.',
-            icon: Eye,
-        },
+        { value: 'admin', label: 'Admin', desc: 'Full access. Manage team, audit logs, roles.', icon: Crown },
+        { value: 'sales', label: 'Sales', desc: 'Create companies, contacts, send messages.', icon: Briefcase },
+        { value: 'viewer', label: 'Viewer', desc: 'Read-only access. Cannot modify anything.', icon: Eye },
     ];
 
     return (
@@ -75,17 +93,12 @@ function RoleModal({ user, open, onClose, onChange, currentUserId }) {
             {user && (
                 <div className="space-y-5">
                     <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                        <div
-                            className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${roleConfig[user.role]?.avatar || 'bg-slate-500'
-                                }`}
-                        >
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${roleConfig[user.role]?.avatar || 'bg-slate-500'}`}>
                             {getInitials(user.email)}
                         </div>
                         <div>
                             <div className="font-medium text-slate-800">{user.email}</div>
-                            <div className="text-xs text-slate-500">
-                                Currently: {roleConfig[user.role]?.label}
-                            </div>
+                            <div className="text-xs text-slate-500">Currently: {roleConfig[user.role]?.label}</div>
                         </div>
                     </div>
 
@@ -98,16 +111,11 @@ function RoleModal({ user, open, onClose, onChange, currentUserId }) {
                                     key={opt.value}
                                     type="button"
                                     onClick={() => setSelected(opt.value)}
-                                    disabled={user.id === currentUserId}
-                                    className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition ${isSelected
-                                            ? 'border-brand-500 bg-brand-50 ring-1 ring-brand-500'
-                                            : 'border-slate-200 hover:bg-slate-50'
+                                    disabled={user.user_id === currentUserId}
+                                    className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition ${isSelected ? 'border-brand-500 bg-brand-50 ring-1 ring-brand-500' : 'border-slate-200 hover:bg-slate-50'
                                         }`}
                                 >
-                                    <Icon
-                                        size={18}
-                                        className={isSelected ? 'text-brand-600 mt-0.5' : 'text-slate-400 mt-0.5'}
-                                    />
+                                    <Icon size={18} className={isSelected ? 'text-brand-600 mt-0.5' : 'text-slate-400 mt-0.5'} />
                                     <div className="flex-1">
                                         <div className="font-medium text-sm text-slate-800">{opt.label}</div>
                                         <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
@@ -123,9 +131,7 @@ function RoleModal({ user, open, onClose, onChange, currentUserId }) {
                     </div>
 
                     <div className="flex justify-end gap-2 pt-2 border-t">
-                        <Button variant="secondary" onClick={onClose}>
-                            Cancel
-                        </Button>
+                        <Button variant="secondary" onClick={onClose}>Cancel</Button>
                         <Button
                             onClick={() => {
                                 if (selected !== user.role) onChange(user, selected);
@@ -142,180 +148,131 @@ function RoleModal({ user, open, onClose, onChange, currentUserId }) {
     );
 }
 
-// ---- Main Page ----
+// ============ Main Page ============
 export default function Team() {
-    const { profile: me } = useAuth();
-    const { data: users = [], isLoading } = useUsers();
-    const updateRole = useUpdateUserRole();
-    const updateStatus = useUpdateUserStatus();
-    const [roleModal, setRoleModal] = useState(null);
+    const { user } = useAuth();
+    const { activeOrg } = useOrg();
+    const { data: members = [], isLoading: membersLoading } = useMembers();
+    const { data: invitations = [], isLoading: invitesLoading } = useInvitations();
+    const updateRole = useUpdateMemberRole();
+    const removeMember = useRemoveMember();
+    const createInvite = useCreateInvitation();
+    const revokeInvite = useRevokeInvitation();
 
-    const handleRole = (user, role) => {
-        updateRole.mutate({ id: user.id, role });
+    const [roleModal, setRoleModal] = useState(null);
+    const [inviteOpen, setInviteOpen] = useState(false);
+    const [inviteForm, setInviteForm] = useState({ email: '', role: 'sales' });
+
+    const handleRoleChange = (member, role) => {
+        updateRole.mutate({ id: member.member_id, role });
     };
 
-    const handleStatus = (user) => {
-        const next = user.status === 'active' ? 'inactive' : 'active';
-        if (!confirm(`Set ${user.email} to ${next}?`)) return;
-        updateStatus.mutate({ id: user.id, status: next });
+    const handleRemove = (member) => {
+        if (!confirm(`Remove ${member.email} from this organization?`)) return;
+        removeMember.mutate(member.member_id);
+    };
+
+    const handleSendInvite = async (e) => {
+        e.preventDefault();
+        try {
+            await createInvite.mutateAsync(inviteForm);
+            setInviteOpen(false);
+            setInviteForm({ email: '', role: 'sales' });
+        } catch (err) { /* handled in hook */ }
+    };
+
+    const copyInviteLink = (token) => {
+        const link = `${window.location.origin}/invite/${token}`;
+        navigator.clipboard.writeText(link);
+        toast.success('Invite link copied!');
     };
 
     const stats = {
-        total: users.length,
-        admins: users.filter((u) => u.role === 'admin').length,
-        sales: users.filter((u) => u.role === 'sales').length,
-        viewers: users.filter((u) => u.role === 'viewer').length,
+        total: members.length,
+        admins: members.filter((m) => m.role === 'admin').length,
+        sales: members.filter((m) => m.role === 'sales').length,
+        viewers: members.filter((m) => m.role === 'viewer').length,
     };
 
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div>
-                <h1 className="text-2xl font-semibold">Team</h1>
-                <p className="text-sm text-slate-500">Manage your team members and their access</p>
+            <div className="flex items-start justify-between flex-wrap gap-3">
+                <div>
+                    <h1 className="text-2xl font-semibold">Team</h1>
+                    <p className="text-sm text-slate-500">
+                        {activeOrg?.name} · {stats.total} members
+                    </p>
+                </div>
+                <Button onClick={() => setInviteOpen(true)}>
+                    <UserPlus size={14} className="mr-1.5" /> Invite Member
+                </Button>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Card>
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                            <Shield size={18} className="text-slate-600" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-semibold">{stats.total}</div>
-                            <div className="text-xs text-slate-500">Total Members</div>
-                        </div>
-                    </div>
+                    <div className="text-xs text-slate-500">Total Members</div>
+                    <div className="text-2xl font-semibold mt-1">{stats.total}</div>
                 </Card>
                 <Card>
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
-                            <Crown size={18} className="text-purple-600" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-semibold">{stats.admins}</div>
-                            <div className="text-xs text-slate-500">Admins</div>
-                        </div>
-                    </div>
+                    <div className="text-xs text-purple-600">Admins</div>
+                    <div className="text-2xl font-semibold mt-1 text-purple-700">{stats.admins}</div>
                 </Card>
                 <Card>
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-                            <Briefcase size={18} className="text-blue-600" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-semibold">{stats.sales}</div>
-                            <div className="text-xs text-slate-500">Sales</div>
-                        </div>
-                    </div>
+                    <div className="text-xs text-blue-600">Sales</div>
+                    <div className="text-2xl font-semibold mt-1 text-blue-700">{stats.sales}</div>
                 </Card>
                 <Card>
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                            <Eye size={18} className="text-slate-600" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-semibold">{stats.viewers}</div>
-                            <div className="text-xs text-slate-500">Viewers</div>
-                        </div>
-                    </div>
+                    <div className="text-xs text-slate-500">Viewers</div>
+                    <div className="text-2xl font-semibold mt-1">{stats.viewers}</div>
                 </Card>
             </div>
 
-            {/* Members list */}
+            {/* Members */}
             <Card title="Members">
-                {isLoading ? (
+                {membersLoading ? (
                     <p className="text-sm text-slate-500">Loading…</p>
                 ) : (
                     <div className="divide-y divide-slate-100 -mx-5 -mb-5">
-                        {users.map((u) => {
-                            const cfg = roleConfig[u.role] || roleConfig.viewer;
-                            const isMe = u.id === me?.id;
+                        {members.map((m) => {
+                            const cfg = roleConfig[m.role] || roleConfig.viewer;
+                            const isMe = m.user_id === user?.id;
                             return (
-                                <div
-                                    key={u.id}
-                                    className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 sm:px-5 py-4 hover:bg-slate-50/60 transition"
-                                >
-                                    {/* Avatar */}
-                                    <div
-                                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 ${cfg.avatar}`}
-                                    >
-                                        {getInitials(u.email)}
+                                <div key={m.member_id} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50/60 transition">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 ${cfg.avatar}`}>
+                                        {getInitials(m.email)}
                                     </div>
-
-                                    {/* Info */}
-                                    <div className="flex-1 min-w-[140px]">
+                                    <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-medium text-sm text-slate-800 truncate">
-                                                {u.email}
-                                            </span>
-                                            {isMe && (
-                                                <span className="text-[10px] uppercase tracking-wide font-medium bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
-                                                    You
-                                                </span>
-                                            )}
+                                            <span className="font-medium text-sm text-slate-800 truncate">{m.email}</span>
+                                            {isMe && <span className="text-[10px] uppercase tracking-wide font-medium bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">You</span>}
                                         </div>
                                         <div className="text-xs text-slate-500 mt-0.5">
-                                            {u.full_name || 'No name set'}
+                                            {m.full_name || 'No name'}
                                         </div>
                                     </div>
-
-                                    {/* Role Badge (clickable) */}
                                     <div className="shrink-0">
                                         {isMe ? (
-                                            <span
-                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${cfg.badge}`}
-                                            >
-                                                <cfg.icon size={12} />
-                                                {cfg.label}
+                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.badge}`}>
+                                                <cfg.icon size={12} /> {cfg.label}
                                             </span>
                                         ) : (
                                             <button
-                                                onClick={() => setRoleModal(u)}
-                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition hover:ring-2 hover:ring-offset-1 hover:ring-brand-200 ${cfg.badge}`}
+                                                onClick={() => setRoleModal(m)}
+                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition hover:ring-2 hover:ring-brand-200 ${cfg.badge}`}
                                             >
-                                                <cfg.icon size={12} />
-                                                {cfg.label}
-                                                <ChevronDown size={12} className="opacity-60" />
+                                                <cfg.icon size={12} /> {cfg.label} ▾
                                             </button>
                                         )}
                                     </div>
-
-                                    {/* Status */}
-                                    <div className="shrink-0">
-                                        {u.status === 'active' ? (
-                                            <span className="inline-flex items-center gap-1.5 text-xs text-green-700">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                                Active
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                                                Inactive
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className="shrink-0 sm:ml-auto text-right">
+                                    <div className="shrink-0 w-24 text-right">
                                         {!isMe && (
                                             <button
-                                                onClick={() => handleStatus(u)}
-                                                className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded transition ${u.status === 'active'
-                                                        ? 'text-red-600 hover:bg-red-50'
-                                                        : 'text-green-600 hover:bg-green-50'
-                                                    }`}
+                                                onClick={() => handleRemove(m)}
+                                                className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded text-red-600 hover:bg-red-50"
                                             >
-                                                {u.status === 'active' ? (
-                                                    <>
-                                                        <UserX size={12} /> Deactivate
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <UserCheck size={12} /> Activate
-                                                    </>
-                                                )}
+                                                <UserX size={12} /> Remove
                                             </button>
                                         )}
                                     </div>
@@ -326,53 +283,97 @@ export default function Team() {
                 )}
             </Card>
 
-            {/* Permissions info */}
-            <Card title="Role Permissions">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Object.entries(roleConfig).map(([key, cfg]) => {
-                        const Icon = cfg.icon;
-                        const descs = {
-                            admin: 'Full access. Manage team, audit logs, roles, and all data.',
-                            sales: 'Create companies, contacts, send messages, schedule meetings.',
-                            viewer: 'Read-only access. Can view data but cannot modify anything.',
-                        };
-                        const perms = {
-                            admin: ['Team management', 'Audit logs', 'All data access', 'Role changes'],
-                            sales: ['Companies & contacts', 'Send messages', 'Schedule meetings'],
-                            viewer: ['View all data'],
-                        };
-                        return (
-                            <div key={key} className="p-4 rounded-lg border border-slate-200">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div
-                                        className={`w-7 h-7 rounded-lg flex items-center justify-center ${cfg.badge}`}
-                                    >
-                                        <Icon size={14} />
+            {/* Invitations */}
+            <Card title={`Pending Invitations (${invitations.length})`}>
+                {invitesLoading ? (
+                    <p className="text-sm text-slate-500">Loading…</p>
+                ) : invitations.length === 0 ? (
+                    <p className="text-sm text-slate-400">No pending invitations.</p>
+                ) : (
+                    <div className="divide-y divide-slate-100 -mx-5 -mb-5">
+                        {invitations.map((inv) => {
+                            const cfg = roleConfig[inv.role] || roleConfig.viewer;
+                            const expired = new Date(inv.expires_at) < new Date();
+                            return (
+                                <div key={inv.id} className="flex items-center gap-4 px-5 py-3">
+                                    <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                                        <Mail size={14} className="text-slate-500" />
                                     </div>
-                                    <span className="font-medium text-sm">{cfg.label}</span>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-medium text-slate-800 truncate">{inv.email}</div>
+                                        <div className="text-xs text-slate-500">
+                                            {inv.accepted_at ? (
+                                                <span className="text-green-600">Accepted</span>
+                                            ) : expired ? (
+                                                <span className="text-red-500">Expired</span>
+                                            ) : (
+                                                <span>Expires {new Date(inv.expires_at).toLocaleDateString()}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.badge}`}>
+                                        {cfg.label}
+                                    </span>
+                                    {!inv.accepted_at && !expired && (
+                                        <>
+                                            <button
+                                                onClick={() => copyInviteLink(inv.token)}
+                                                className="text-xs text-brand-600 hover:underline"
+                                            >
+                                                Copy link
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    if (confirm('Revoke this invitation?')) revokeInvite.mutate(inv.id);
+                                                }}
+                                                className="p-1.5 rounded text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
-                                <p className="text-xs text-slate-500 mb-3">{descs[key]}</p>
-                                <ul className="space-y-1">
-                                    {perms[key].map((p) => (
-                                        <li key={p} className="text-xs text-slate-600 flex items-center gap-1.5">
-                                            <span className={`w-1 h-1 rounded-full ${cfg.dot}`} />
-                                            {p}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        );
-                    })}
-                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </Card>
+
+            {/* Invite Modal */}
+            <Modal open={inviteOpen} onClose={() => setInviteOpen(false)} title="Invite Member">
+                <form onSubmit={handleSendInvite} className="space-y-4">
+                    <Input
+                        label="Email *"
+                        type="email"
+                        required
+                        value={inviteForm.email}
+                        onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+                    />
+                    <Select
+                        label="Role"
+                        value={inviteForm.role}
+                        onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}
+                    >
+                        <option value="sales">Sales — Create companies, contacts, send messages</option>
+                        <option value="viewer">Viewer — Read-only access</option>
+                        <option value="admin">Admin — Full access + manage team</option>
+                    </Select>
+                    <div className="flex justify-end gap-2 pt-2">
+                        <Button type="button" variant="secondary" onClick={() => setInviteOpen(false)}>Cancel</Button>
+                        <Button type="submit" disabled={createInvite.isPending}>
+                            {createInvite.isPending ? 'Sending…' : 'Send Invitation'}
+                        </Button>
+                    </div>
+                </form>
+            </Modal>
 
             {/* Role Change Modal */}
             <RoleModal
                 user={roleModal}
                 open={!!roleModal}
                 onClose={() => setRoleModal(null)}
-                onChange={handleRole}
-                currentUserId={me?.id}
+                onChange={handleRoleChange}
+                currentUserId={user?.id}
             />
         </div>
     );

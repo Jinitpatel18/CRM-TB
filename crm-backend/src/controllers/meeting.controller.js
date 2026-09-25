@@ -1,9 +1,8 @@
 import * as svc from '../services/calendar.service.js';
-import { env } from '../config/env.js';
 
 export const schedule = async (req, res, next) => {
     try {
-        const data = await svc.scheduleMeeting(req.body, req.user.id);
+        const data = await svc.scheduleMeeting(req.body, req.user.id, req.org.id);
         res.status(201).json({ success: true, data });
     } catch (e) { next(e); }
 };
@@ -15,19 +14,17 @@ export const availability = async (req, res, next) => {
     } catch (e) { next(e); }
 };
 
-// ============ OAuth ============
 export const oauthUrl = async (req, res, next) => {
     try {
         res.json({ success: true, data: { url: svc.getAuthUrl() } });
     } catch (e) { next(e); }
 };
 
-
 export const oauthCallback = async (req, res, next) => {
-    const frontendUrl = env.frontendUrl || 'http://localhost:5173';
-
     try {
         const { code, error } = req.query;
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
         if (error) {
             return res.redirect(`${frontendUrl}/settings?google=error&reason=${error}`);
         }
@@ -36,10 +33,12 @@ export const oauthCallback = async (req, res, next) => {
         const result = await svc.exchangeCodeForTokens(code);
         res.redirect(`${frontendUrl}/settings?google=connected&email=${result.email}`);
     } catch (e) {
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
         console.error('[oauth callback]', e.message);
         res.redirect(`${frontendUrl}/settings?google=error&reason=${encodeURIComponent(e.message)}`);
     }
 };
+
 export const oauthStatus = async (req, res, next) => {
     try {
         const account = await svc.getConnectedAccount();
